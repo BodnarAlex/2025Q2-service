@@ -8,9 +8,15 @@ import { ArtistModule } from './artist/artist.module';
 import { AlbumModule } from './album/album.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({
-    isGlobal: true,
-  }), UserModule, TrackModule, ArtistModule, AlbumModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    UserModule,
+    TrackModule,
+    ArtistModule,
+    AlbumModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
