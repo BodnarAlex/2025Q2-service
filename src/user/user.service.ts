@@ -9,9 +9,12 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { v4 as uuid, validate } from 'uuid';
 import { instanceToPlain } from 'class-transformer';
+import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
+
   private users: User[] = [];
 
   create(createUserDto: CreateUserDto) {
@@ -45,13 +48,14 @@ export class UserService {
   update(id: string, updateUserDto: UpdateUserDto) {
     if (!validate(id)) throw new BadRequestException('Id is not uuid');
 
-    const user = this.findOne(id);
+    const user = this.users.find((u: User) => u.id === id);
+    this.logger.debug(`old user: ${JSON.stringify(user)}`);
+    this.logger.debug(`update DTO: ${JSON.stringify(updateUserDto)}`);
     if (!user) throw new NotFoundException('User not found');
-    if (
-      !updateUserDto.oldPassword ||
-      updateUserDto.oldPassword !== user.password
-    )
-      throw new ForbiddenException();
+
+    if (updateUserDto.oldPassword !== user.password)
+      throw new ForbiddenException('Incorrect old password');
+
     user.password = updateUserDto.newPassword;
     user.version++;
     user.updatedAt = Date.now();
