@@ -8,6 +8,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { v4 as uuid, validate } from 'uuid';
+import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class UserService {
@@ -18,27 +19,27 @@ export class UserService {
       throw new BadRequestException('Body does not contain required fields');
 
     const time = Date.now();
-    const newUser: User = {
+    const newUser = new User({
       login: createUserDto.login,
       password: createUserDto.password,
       id: uuid(),
       version: 1,
       createdAt: time,
       updatedAt: time,
-    };
+    });
     this.users.push(newUser);
-    return newUser;
+    return instanceToPlain(newUser);
   }
 
   findAll() {
-    return this.users;
+    return this.users.map((user) => instanceToPlain(user));
   }
 
   findOne(id: string) {
     if (!validate(id)) throw new BadRequestException('Id is not uuid');
     const user = this.users.filter((u: User) => u.id === id).at(0);
     if (!user) throw new NotFoundException('User does not exist');
-    return user;
+    return instanceToPlain(user);
   }
 
   update(id: string, updateUserDto: UpdateUserDto) {
@@ -54,7 +55,7 @@ export class UserService {
     user.password = updateUserDto.newPassword;
     user.version++;
     user.updatedAt = Date.now();
-    return user;
+    return instanceToPlain(user);
   }
 
   remove(id: string) {
