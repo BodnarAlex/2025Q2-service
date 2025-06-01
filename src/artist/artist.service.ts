@@ -7,15 +7,20 @@ import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { Artist } from './entities/artist.entity';
 import { v4, validate as isUuid } from 'uuid';
-import { instanceToPlain } from 'class-transformer';
+import { AlbumService } from 'src/album/album.service';
+import { TrackService } from 'src/track/track.service';
 
 @Injectable()
 export class ArtistService {
   private artists: Artist[] = [];
+  constructor(
+    private readonly albumService: AlbumService,
+    private readonly trackService: TrackService,
+  ) {}
 
   create(createArtistDto: CreateArtistDto) {
     if (
-      typeof createArtistDto.name !== 'string' &&
+      typeof createArtistDto.name !== 'string' ||
       typeof createArtistDto.grammy !== 'boolean'
     )
       throw new BadRequestException('Body does not contain required fields');
@@ -26,7 +31,7 @@ export class ArtistService {
       grammy: createArtistDto.grammy,
     });
     this.artists.push(newArtist);
-    return instanceToPlain(newArtist);
+    return newArtist;
   }
 
   findAll() {
@@ -37,7 +42,7 @@ export class ArtistService {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
     const artist = this.artists.find((a: Artist) => a.id === id);
     if (!artist) throw new NotFoundException('Artist does not exist');
-    return instanceToPlain(artist);
+    return artist;
   }
 
   update(id: string, updateArtistDto: UpdateArtistDto) {
@@ -52,10 +57,13 @@ export class ArtistService {
 
     artist.grammy = updateArtistDto.grammy;
     artist.name = updateArtistDto.name;
-    return instanceToPlain(artist);
+    return artist;
   }
 
-  remove(id: string) {
+  async remove(id: string) {
+    await this.albumService.nullifyArtistId(id);
+    await this.trackService.nullifyArtistId(id);
+
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
     const index = this.artists.findIndex((u: Artist) => u.id === id);
     if (index === -1) throw new NotFoundException('Artist not found');
