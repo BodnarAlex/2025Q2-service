@@ -7,7 +7,7 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { v4 as uuid, validate } from 'uuid';
+import { v4, validate } from 'uuid';
 import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
@@ -22,7 +22,7 @@ export class UserService {
     const newUser = new User({
       login: createUserDto.login,
       password: createUserDto.password,
-      id: uuid(),
+      id: v4(),
       version: 1,
       createdAt: time,
       updatedAt: time,
