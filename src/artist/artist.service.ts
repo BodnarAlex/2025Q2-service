@@ -15,7 +15,7 @@ export class ArtistService {
 
   create(createArtistDto: CreateArtistDto) {
     if (
-      typeof createArtistDto.name !== 'string' ||
+      typeof createArtistDto.name !== 'string' &&
       typeof createArtistDto.grammy !== 'boolean'
     )
       throw new BadRequestException('Body does not contain required fields');
@@ -47,7 +47,9 @@ export class ArtistService {
       typeof updateArtistDto.grammy !== 'boolean'
     )
       throw new BadRequestException('Body does not contain required fields');
-    const artist = this.findOne(id);
+    const artist = this.artists.find((a: Artist) => a.id === id);
+    if (!artist) throw new NotFoundException('Artist not found');
+
     artist.grammy = updateArtistDto.grammy;
     artist.name = updateArtistDto.name;
     return instanceToPlain(artist);
