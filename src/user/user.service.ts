@@ -9,12 +9,9 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { v4 as uuid, validate } from 'uuid';
 import { instanceToPlain } from 'class-transformer';
-import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class UserService {
-  private readonly logger = new Logger(UserService.name);
-
   private users: User[] = [];
 
   create(createUserDto: CreateUserDto) {
@@ -40,7 +37,7 @@ export class UserService {
 
   findOne(id: string) {
     if (!validate(id)) throw new BadRequestException('Id is not uuid');
-    const user = this.users.filter((u: User) => u.id === id).at(0);
+    const user = this.users.find((u: User) => u.id === id);
     if (!user) throw new NotFoundException('User does not exist');
     return instanceToPlain(user);
   }
@@ -48,9 +45,10 @@ export class UserService {
   update(id: string, updateUserDto: UpdateUserDto) {
     if (!validate(id)) throw new BadRequestException('Id is not uuid');
 
+    if (!updateUserDto.newPassword || !updateUserDto.oldPassword)
+      throw new BadRequestException('Body does not contain required fields');
+
     const user = this.users.find((u: User) => u.id === id);
-    this.logger.debug(`old user: ${JSON.stringify(user)}`);
-    this.logger.debug(`update DTO: ${JSON.stringify(updateUserDto)}`);
     if (!user) throw new NotFoundException('User not found');
 
     if (updateUserDto.oldPassword !== user.password)
