@@ -87,7 +87,7 @@ export class FavoritesService {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
 
     const index = this.favsRepo.getIndexTrackById(id);
-    if (index === -1) throw new NotFoundException('Track not found');
+    if (index === -1) throw new NotFoundException('Track is not favorite');
 
     this.favsRepo.removeTrack(id);
   }
@@ -96,7 +96,7 @@ export class FavoritesService {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
 
     const index = this.favsRepo.getIndexAlbumById(id);
-    if (index === -1) throw new NotFoundException('Album not found');
+    if (index === -1) throw new NotFoundException('Album is not favorite');
 
     this.favsRepo.removeAlbum(id);
   }
@@ -105,7 +105,7 @@ export class FavoritesService {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
 
     const index = this.favsRepo.getIndexArtistById(id);
-    if (index === -1) throw new NotFoundException('Artist not found');
+    if (index === -1) throw new NotFoundException('Artist is not favorite');
 
     this.favsRepo.removeArtist(id);
   }
