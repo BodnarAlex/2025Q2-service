@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -7,10 +9,17 @@ import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { v4, validate as isUuid } from 'uuid';
 import { Track } from './entities/track.entity';
+import { FavoritesService } from 'src/favorites/favorites.service';
 
 @Injectable()
 export class TrackService {
   private tracks: Track[] = [];
+  constructor(
+    @Inject(forwardRef(() => FavoritesService))
+    private readonly favoritesService: FavoritesService,
+  ) {}
+
+  А;
   create(createTrackDto: CreateTrackDto) {
     if (
       typeof createTrackDto.name !== 'string' ||
@@ -55,8 +64,10 @@ export class TrackService {
     return track;
   }
 
-  remove(id: string) {
+  async remove(id: string) {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
+    await this.favoritesService.nullifyFavsTrackId(id);
+
     const index = this.tracks.findIndex((u: Track) => u.id === id);
     if (index === -1) throw new NotFoundException('Track not found');
     this.tracks.splice(index, 1);

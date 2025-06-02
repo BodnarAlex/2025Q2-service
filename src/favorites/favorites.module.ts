@@ -14,5 +14,6 @@ import { ArtistModule } from 'src/artist/artist.module';
 
   controllers: [FavoritesController],
   providers: [FavoritesService],
+  exports: [FavoritesService],
 })
 export class FavoritesModule {}

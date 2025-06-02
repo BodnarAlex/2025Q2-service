@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,11 +11,18 @@ import { v4, validate as isUuid } from 'uuid';
 
 import { Album } from './entities/album.entity';
 import { TrackService } from 'src/track/track.service';
+import { FavoritesService } from 'src/favorites/favorites.service';
 
 @Injectable()
 export class AlbumService {
   private albums: Album[] = [];
-  constructor(private readonly trackService: TrackService) {}
+  constructor(
+    @Inject(forwardRef(() => TrackService))
+    private readonly trackService: TrackService,
+
+    @Inject(forwardRef(() => FavoritesService))
+    private readonly favoritesService: FavoritesService,
+  ) {}
 
   create(createAlbumDto: CreateAlbumDto) {
     if (
@@ -61,7 +70,7 @@ export class AlbumService {
 
   async remove(id: string) {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
-
+    await this.favoritesService.nullifyFavsAlbumId(id);
     await this.trackService.nullifyAlbum(id);
     const index = this.albums.findIndex((u: Album) => u.id === id);
     if (index === -1) throw new NotFoundException('Album not found');
