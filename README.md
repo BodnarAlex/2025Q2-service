@@ -14,7 +14,7 @@ git clone https://github.com/BodnarAlex/2025Q2-service.git
 ## Installing NPM modules
 
 ```
-npm install
+npm ci
 ```
 
 ## Running application

@@ -12,16 +12,18 @@ import { v4, validate as isUuid } from 'uuid';
 import { Album } from './entities/album.entity';
 import { TrackService } from 'src/track/track.service';
 import { FavoritesService } from 'src/favorites/favorites.service';
+import { AlbumRepository } from './album.repository';
 
 @Injectable()
 export class AlbumService {
-  private albums: Album[] = [];
   constructor(
     @Inject(forwardRef(() => TrackService))
     private readonly trackService: TrackService,
 
     @Inject(forwardRef(() => FavoritesService))
     private readonly favoritesService: FavoritesService,
+
+    private readonly albumRepo: AlbumRepository,
   ) {}
 
   create(createAlbumDto: CreateAlbumDto) {
@@ -38,16 +40,16 @@ export class AlbumService {
       year: createAlbumDto.year,
       artistId: artistId,
     });
-    this.albums.push(newAlbum);
+    this.albumRepo.create(newAlbum);
     return newAlbum;
   }
 
   findAll() {
-    return this.albums;
+    return this.albumRepo.findAll();
   }
   findOne(id: string) {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
-    const albums = this.albums.find((a: Album) => a.id === id);
+    const albums = this.albumRepo.findById(id);
     if (!albums) throw new NotFoundException('Album does not exist');
     return albums;
   }
@@ -59,12 +61,13 @@ export class AlbumService {
       typeof updateAlbumDto.year !== 'number'
     )
       throw new BadRequestException('Body does not contain required fields');
-    const album = this.albums.find((a: Album) => a.id === id);
+    const album = this.albumRepo.findById(id);
     if (!album) throw new NotFoundException('Album not found');
 
     album.artistId = updateAlbumDto.artistId;
     album.name = updateAlbumDto.name;
     album.year = updateAlbumDto.year;
+    this.albumRepo.update(album);
     return album;
   }
 
@@ -72,16 +75,12 @@ export class AlbumService {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
     await this.favoritesService.nullifyFavsAlbumId(id);
     await this.trackService.nullifyAlbum(id);
-    const index = this.albums.findIndex((u: Album) => u.id === id);
-    if (index === -1) throw new NotFoundException('Album not found');
-    this.albums.splice(index, 1);
+    const album = this.albumRepo.findById(id);
+    if (!album) throw new NotFoundException('Album not found');
+    this.albumRepo.delete(id);
   }
 
   async nullifyArtistId(id: string) {
-    for (const album of this.albums) {
-      if (album.artistId === id) {
-        album.artistId = null;
-      }
-    }
+    this.albumRepo.nullifyArtistId(id);
   }
 }

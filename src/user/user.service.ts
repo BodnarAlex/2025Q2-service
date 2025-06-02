@@ -9,10 +9,11 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { v4, validate } from 'uuid';
 import { instanceToPlain } from 'class-transformer';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
-  private users: User[] = [];
+  constructor(private readonly userRepo: UserRepository) {}
 
   create(createUserDto: CreateUserDto) {
     if (!createUserDto.login || !createUserDto.password)
@@ -27,17 +28,17 @@ export class UserService {
       createdAt: time,
       updatedAt: time,
     });
-    this.users.push(newUser);
+    this.userRepo.save(newUser);
     return instanceToPlain(newUser);
   }
 
   findAll() {
-    return this.users.map((user) => instanceToPlain(user));
+    return this.userRepo.findAll().map((user: User) => instanceToPlain(user));
   }
 
   findOne(id: string) {
     if (!validate(id)) throw new BadRequestException('Id is not uuid');
-    const user = this.users.find((u: User) => u.id === id);
+    const user = this.userRepo.findById(id);
     if (!user) throw new NotFoundException('User does not exist');
     return instanceToPlain(user);
   }
@@ -48,7 +49,7 @@ export class UserService {
     if (!updateUserDto.newPassword || !updateUserDto.oldPassword)
       throw new BadRequestException('Body does not contain required fields');
 
-    const user = this.users.find((u: User) => u.id === id);
+    const user = this.userRepo.findById(id);
     if (!user) throw new NotFoundException('User not found');
 
     if (updateUserDto.oldPassword !== user.password)
@@ -57,13 +58,15 @@ export class UserService {
     user.password = updateUserDto.newPassword;
     user.version++;
     user.updatedAt = Date.now();
+
+    this.userRepo.update(user);
     return instanceToPlain(user);
   }
 
   remove(id: string) {
     if (!validate(id)) throw new BadRequestException('Id is not uuid');
-    const index = this.users.findIndex((u: User) => u.id === id);
-    if (index === -1) throw new NotFoundException('User not found');
-    this.users.splice(index, 1);
+    const user = this.userRepo.findById(id);
+    if (!user) throw new NotFoundException('User not found');
+    this.userRepo.delete(id);
   }
 }

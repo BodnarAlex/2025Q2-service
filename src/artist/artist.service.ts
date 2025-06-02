@@ -12,10 +12,10 @@ import { v4, validate as isUuid } from 'uuid';
 import { AlbumService } from 'src/album/album.service';
 import { TrackService } from 'src/track/track.service';
 import { FavoritesService } from 'src/favorites/favorites.service';
+import { ArtistRepository } from './artist.repository';
 
 @Injectable()
 export class ArtistService {
-  private artists: Artist[] = [];
   constructor(
     @Inject(forwardRef(() => AlbumService))
     private readonly albumService: AlbumService,
@@ -25,6 +25,8 @@ export class ArtistService {
 
     @Inject(forwardRef(() => FavoritesService))
     private readonly favoritesService: FavoritesService,
+
+    private readonly artistRepo: ArtistRepository,
   ) {}
 
   create(createArtistDto: CreateArtistDto) {
@@ -39,17 +41,17 @@ export class ArtistService {
       name: createArtistDto.name,
       grammy: createArtistDto.grammy,
     });
-    this.artists.push(newArtist);
+    this.artistRepo.create(newArtist);
     return newArtist;
   }
 
   findAll() {
-    return this.artists;
+    return this.artistRepo.findAll();
   }
 
   findOne(id: string) {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
-    const artist = this.artists.find((a: Artist) => a.id === id);
+    const artist = this.artistRepo.findById(id);
     if (!artist) throw new NotFoundException('Artist does not exist');
     return artist;
   }
@@ -61,11 +63,13 @@ export class ArtistService {
       typeof updateArtistDto.grammy !== 'boolean'
     )
       throw new BadRequestException('Body does not contain required fields');
-    const artist = this.artists.find((a: Artist) => a.id === id);
+    const artist = this.artistRepo.findById(id);
     if (!artist) throw new NotFoundException('Artist not found');
 
     artist.grammy = updateArtistDto.grammy;
     artist.name = updateArtistDto.name;
+
+    this.artistRepo.update(artist);
     return artist;
   }
 
@@ -75,8 +79,8 @@ export class ArtistService {
     await this.favoritesService.nullifyFavsArtistId(id);
 
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
-    const index = this.artists.findIndex((u: Artist) => u.id === id);
-    if (index === -1) throw new NotFoundException('Artist not found');
-    this.artists.splice(index, 1);
+    const artist = this.artistRepo.findById(id);
+    if (!artist) throw new NotFoundException('Artist not found');
+    this.artistRepo.delete(id);
   }
 }

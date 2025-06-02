@@ -10,16 +10,16 @@ import { UpdateTrackDto } from './dto/update-track.dto';
 import { v4, validate as isUuid } from 'uuid';
 import { Track } from './entities/track.entity';
 import { FavoritesService } from 'src/favorites/favorites.service';
+import { TrackRepository } from './track.repository';
 
 @Injectable()
 export class TrackService {
-  private tracks: Track[] = [];
   constructor(
     @Inject(forwardRef(() => FavoritesService))
     private readonly favoritesService: FavoritesService,
+    private readonly trackRepo: TrackRepository,
   ) {}
 
-  А;
   create(createTrackDto: CreateTrackDto) {
     if (
       typeof createTrackDto.name !== 'string' ||
@@ -37,30 +37,31 @@ export class TrackService {
       albumId: albumId,
       duration: createTrackDto.duration,
     });
-    this.tracks.push(newTrack);
-    return newTrack;
+    return this.trackRepo.create(newTrack);
   }
 
   findAll() {
-    return this.tracks;
+    return this.trackRepo.findAll();
   }
 
   findOne(id: string) {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
-    const track = this.tracks.find((t: Track) => t.id === id);
+    const track = this.trackRepo.findById(id);
     if (!track) throw new NotFoundException('Artist does not exist');
     return track;
   }
 
   update(id: string, updateTrackDto: UpdateTrackDto) {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
-    const track = this.tracks.find((t: Track) => t.id === id);
+    const track = this.trackRepo.findById(id);
     if (!track) throw new NotFoundException('Track not found');
 
     track.artistId = updateTrackDto.artistId;
     track.albumId = updateTrackDto.albumId;
     track.name = updateTrackDto.name;
     track.duration = updateTrackDto.duration;
+
+    this.trackRepo.update(track);
     return track;
   }
 
@@ -68,24 +69,16 @@ export class TrackService {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
     await this.favoritesService.nullifyFavsTrackId(id);
 
-    const index = this.tracks.findIndex((u: Track) => u.id === id);
-    if (index === -1) throw new NotFoundException('Track not found');
-    this.tracks.splice(index, 1);
+    const track = this.trackRepo.findById(id);
+    if (!track) throw new NotFoundException('Track not found');
+    this.trackRepo.delete(id);
   }
 
   async nullifyArtistId(id: string) {
-    for (const track of this.tracks) {
-      if (track.artistId === id) {
-        track.artistId = null;
-      }
-    }
+    this.trackRepo.nullifyArtistId(id);
   }
 
   async nullifyAlbum(id: string) {
-    for (const track of this.tracks) {
-      if (track.albumId === id) {
-        track.albumId = null;
-      }
-    }
+    this.trackRepo.nullifyAlbumId(id);
   }
 }
