@@ -8,7 +8,7 @@
 ## Downloading
 
 ```
-git clone {repository URL}
+git clone https://github.com/BodnarAlex/2025Q2-service.git
 ```
 
 ## Installing NPM modules
@@ -23,15 +23,16 @@ npm install
 npm start
 ```
 
-After starting the app on port (4000 as default) you can open
-in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
-For more information about OpenAPI/Swagger please visit https://swagger.io/.
+The default port is 4000. However, you can copy the .env and create your own /env to set any port as your default
+
+To check the work, swagger, tests, you need to leave the server open.
+Work in another terminal tab.
 
 ## Testing
 
 After application running open new terminal and enter:
 
-To run all tests without authorization
+To run all tests for Home Library Service: Part 1
 
 ```
 npm run test
@@ -43,19 +44,16 @@ To run only one of all test suites
 npm run test -- <path to suite>
 ```
 
-To run all test with authorization
-
-```
-npm run test:auth
-```
-
-To run only specific test suite with authorization
-
-```
-npm run test:auth -- <path to suite>
-```
+Optional for first week check:
+- `npm test -- test/albums.e2e.spec.ts`
+- `npm test -- test/users.e2e.spec.ts`
+- `npm test -- test/artists.e2e.spec.ts`
+- `npm test -- test/tracks.e2e.spec.ts`
+- `npm test -- test/favorites.e2e.spec.ts`
 
 ### Auto-fix and format
+
+There are no errors when working with these scripts.
 
 ```
 npm run lint
@@ -65,8 +63,20 @@ npm run lint
 npm run format
 ```
 
-### Debugging in VSCode
+### Postman
 
-Press <kbd>F5</kbd> to debug.
+If you want to test the functionality of the application, use REST in Postman.
+Enter your endpoint, for example, `http://localhost:4000/favs/track`.
+Enter the desired action and body, and then send.
 
-For more information, visit: https://code.visualstudio.com/docs/editor/debugging
+### Swagger
+
+OpenAPI spec in doc folder corresponds with assignment
+
+You can look at the default swagger of this app on this path
+`http://localhost:4000/doc`
+
+If you changed the port in ENV, then insert your port for correct operation
+`http://localhost:PORT/doc`
+
+In this way, you can directly use entities and actions to test the work.
