@@ -80,3 +80,17 @@ If you changed the port in ENV, then insert your port for correct operation
 `http://localhost:PORT/doc`
 
 In this way, you can directly use entities and actions to test the work.
+
+### Docker
+
+To stop all running containers and remove all Docker resources (containers, images, volumes, and networks)
+
+```
+docker system prune -a
+```
+
+To list all Docker images available on your system
+
+```
+docker images
+```
