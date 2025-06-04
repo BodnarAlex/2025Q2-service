@@ -94,3 +94,9 @@ To list all Docker images available on your system
 ```
 docker images
 ```
+
+Silence mode
+
+```
+docker-compose up -d
+```
