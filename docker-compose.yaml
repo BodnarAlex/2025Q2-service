@@ -1,8 +1,48 @@
-version '3.0'
+version '3.8'
 
 services:
-  my-api:
-    image: ImageName
-    build: .
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile.postgress
+    container_name: postgress
+    restart: always
     ports:
-    - "3000:3000"
+      - "${DB_PORT}:${DB_PORT}"
+    environment:
+      POSTGRES_DB=${POSTGRES_DB}
+      POSTGRES_USER=${POSTGRES_USER}
+      POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      pg-data: /var/lib/postgresql/data
+      pglogs: /var/log/postgresql
+    networks:
+      - home-net
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: home_library_service
+    restart: always
+    ports:
+      - "3000:${PORT}"
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST=${DB_HOST}
+      DB_PORT=${DB_PORT}
+      PORT=${PORT}
+    volumes:
+      - ./src:/src
+    networks:
+      - home-net
+    command: npm run start:dev
+
+volumes:
+  pg-data:
+  pglogs:
+
+networks:
+  home-net:
+    driver: bridge
