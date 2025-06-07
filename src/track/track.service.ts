@@ -10,17 +10,20 @@ import { UpdateTrackDto } from './dto/update-track.dto';
 import { v4, validate as isUuid } from 'uuid';
 import { Track } from './entities/track.entity';
 import { FavoritesService } from 'src/favorites/favorites.service';
-import { TrackRepository } from './track.repository';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class TrackService {
   constructor(
+    @InjectRepository(Track)
+    private readonly trackRepo: Repository<Track>,
+
     @Inject(forwardRef(() => FavoritesService))
     private readonly favoritesService: FavoritesService,
-    private readonly trackRepo: TrackRepository,
   ) {}
 
-  create(createTrackDto: CreateTrackDto) {
+  async create(createTrackDto: CreateTrackDto) {
     if (
       typeof createTrackDto.name !== 'string' ||
       typeof createTrackDto.duration !== 'number'
@@ -37,23 +40,24 @@ export class TrackService {
       albumId: albumId,
       duration: createTrackDto.duration,
     });
-    return this.trackRepo.create(newTrack);
+    const createTrack = await this.trackRepo.save(newTrack);
+    return createTrack;
   }
 
-  findAll() {
-    return this.trackRepo.findAll();
+  async findAll() {
+    return this.trackRepo.find();
   }
 
-  findOne(id: string) {
+  async findOne(id: string) {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
-    const track = this.trackRepo.findById(id);
+    const track = await this.trackRepo.findOneBy({ id });
     if (!track) throw new NotFoundException('Artist does not exist');
     return track;
   }
 
-  update(id: string, updateTrackDto: UpdateTrackDto) {
+  async update(id: string, updateTrackDto: UpdateTrackDto) {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
-    const track = this.trackRepo.findById(id);
+    const track = await this.trackRepo.findOneBy({ id });
     if (!track) throw new NotFoundException('Track not found');
 
     track.artistId = updateTrackDto.artistId;
@@ -61,7 +65,7 @@ export class TrackService {
     track.name = updateTrackDto.name;
     track.duration = updateTrackDto.duration;
 
-    this.trackRepo.update(track);
+    this.trackRepo.save(track);
     return track;
   }
 
@@ -69,16 +73,16 @@ export class TrackService {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
     await this.favoritesService.nullifyFavsTrackId(id);
 
-    const track = this.trackRepo.findById(id);
+    const track = await this.trackRepo.findOneBy({ id });
     if (!track) throw new NotFoundException('Track not found');
-    this.trackRepo.delete(id);
+    await this.trackRepo.delete(id);
   }
 
   async nullifyArtistId(id: string) {
-    this.trackRepo.nullifyArtistId(id);
+    await this.trackRepo.update({ artistId: id }, { artistId: null });
   }
 
   async nullifyAlbum(id: string) {
-    this.trackRepo.nullifyAlbumId(id);
+    await this.trackRepo.update({ albumId: id }, { albumId: null });
   }
 }
