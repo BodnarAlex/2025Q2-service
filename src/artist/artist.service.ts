@@ -12,11 +12,15 @@ import { v4, validate as isUuid } from 'uuid';
 import { AlbumService } from 'src/album/album.service';
 import { TrackService } from 'src/track/track.service';
 import { FavoritesService } from 'src/favorites/favorites.service';
-import { ArtistRepository } from './artist.repository';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class ArtistService {
   constructor(
+    @InjectRepository(Artist)
+    private readonly artistRepo: Repository<Artist>,
+
     @Inject(forwardRef(() => AlbumService))
     private readonly albumService: AlbumService,
 
@@ -25,11 +29,9 @@ export class ArtistService {
 
     @Inject(forwardRef(() => FavoritesService))
     private readonly favoritesService: FavoritesService,
-
-    private readonly artistRepo: ArtistRepository,
   ) {}
 
-  create(createArtistDto: CreateArtistDto) {
+  async create(createArtistDto: CreateArtistDto) {
     if (
       typeof createArtistDto.name !== 'string' ||
       typeof createArtistDto.grammy !== 'boolean'
@@ -41,36 +43,36 @@ export class ArtistService {
       name: createArtistDto.name,
       grammy: createArtistDto.grammy,
     });
-    this.artistRepo.create(newArtist);
-    return newArtist;
+    const createdArtist = await this.artistRepo.save(newArtist);
+    return createdArtist;
   }
 
-  findAll() {
-    return this.artistRepo.findAll();
+  async findAll() {
+    return await this.artistRepo.find();
   }
 
-  findOne(id: string) {
+  async findOne(id: string) {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
-    const artist = this.artistRepo.findById(id);
+    const artist = await this.artistRepo.findOneBy({ id });
     if (!artist) throw new NotFoundException('Artist does not exist');
     return artist;
   }
 
-  update(id: string, updateArtistDto: UpdateArtistDto) {
+  async update(id: string, updateArtistDto: UpdateArtistDto) {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
     if (
       typeof updateArtistDto.name !== 'string' ||
       typeof updateArtistDto.grammy !== 'boolean'
     )
       throw new BadRequestException('Body does not contain required fields');
-    const artist = this.artistRepo.findById(id);
+    const artist = await this.artistRepo.findOneBy({ id });
     if (!artist) throw new NotFoundException('Artist not found');
 
     artist.grammy = updateArtistDto.grammy;
     artist.name = updateArtistDto.name;
 
-    this.artistRepo.update(artist);
-    return artist;
+    const updateArtist = await this.artistRepo.save(artist);
+    return updateArtist;
   }
 
   async remove(id: string) {
@@ -79,8 +81,8 @@ export class ArtistService {
     await this.favoritesService.nullifyFavsArtistId(id);
 
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
-    const artist = this.artistRepo.findById(id);
+    const artist = await this.artistRepo.findOneBy({ id });
     if (!artist) throw new NotFoundException('Artist not found');
-    this.artistRepo.delete(id);
+    await this.artistRepo.delete(id);
   }
 }
