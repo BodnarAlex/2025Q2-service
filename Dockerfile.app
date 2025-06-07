@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci
+RUN npm ci && npm cache clean --force
 
 COPY . .
 
@@ -16,7 +16,9 @@ FROM node:22-alpine
 WORKDIR /app
 
 COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
+
+RUN npm ci --omit=dev && npm cache clean --force
+
 COPY --from=builder /app/dist ./dist
 
 EXPOSE 4000

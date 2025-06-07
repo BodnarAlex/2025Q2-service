@@ -1,21 +1,19 @@
-version '3.8'
-
 services:
   postgres:
     build:
       context: .
-      dockerfile: Dockerfile.postgress
+      dockerfile: Dockerfile.postgres
     container_name: postgress
     restart: always
     ports:
       - "${DB_PORT}:${DB_PORT}"
     environment:
-      POSTGRES_DB=${POSTGRES_DB}
-      POSTGRES_USER=${POSTGRES_USER}
-      POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
-      pg-data: /var/lib/postgresql/data
-      pglogs: /var/log/postgresql
+      - pg-data:/var/lib/postgresql/data
+      - pglogs:/var/log/postgresql
     networks:
       - home-net
 
@@ -30,11 +28,11 @@ services:
     depends_on:
       - postgres
     environment:
-      DB_HOST=${DB_HOST}
-      DB_PORT=${DB_PORT}
-      PORT=${PORT}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - PORT=${PORT}
     volumes:
-      - ./src:/src
+      - ./src:/app/src
     networks:
       - home-net
     command: npm run start:dev
