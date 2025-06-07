@@ -12,21 +12,23 @@ import { v4, validate as isUuid } from 'uuid';
 import { Album } from './entities/album.entity';
 import { TrackService } from 'src/track/track.service';
 import { FavoritesService } from 'src/favorites/favorites.service';
-import { AlbumRepository } from './album.repository';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AlbumService {
   constructor(
+    @InjectRepository(Album)
+    private readonly albumRepo: Repository<Album>,
+
     @Inject(forwardRef(() => TrackService))
     private readonly trackService: TrackService,
 
     @Inject(forwardRef(() => FavoritesService))
     private readonly favoritesService: FavoritesService,
-
-    private readonly albumRepo: AlbumRepository,
   ) {}
 
-  create(createAlbumDto: CreateAlbumDto) {
+  async create(createAlbumDto: CreateAlbumDto) {
     if (
       typeof createAlbumDto.name !== 'string' ||
       typeof createAlbumDto.year !== 'number'
@@ -40,34 +42,34 @@ export class AlbumService {
       year: createAlbumDto.year,
       artistId: artistId,
     });
-    this.albumRepo.create(newAlbum);
-    return newAlbum;
+    const createAlbum = await this.albumRepo.save(newAlbum);
+    return createAlbum;
   }
 
-  findAll() {
-    return this.albumRepo.findAll();
+  async findAll() {
+    return await this.albumRepo.find();
   }
-  findOne(id: string) {
+  async findOne(id: string) {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
-    const albums = this.albumRepo.findById(id);
+    const albums = await this.albumRepo.findOneBy({ id });
     if (!albums) throw new NotFoundException('Album does not exist');
     return albums;
   }
 
-  update(id: string, updateAlbumDto: UpdateAlbumDto) {
+  async update(id: string, updateAlbumDto: UpdateAlbumDto) {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
     if (
       typeof updateAlbumDto.name !== 'string' ||
       typeof updateAlbumDto.year !== 'number'
     )
       throw new BadRequestException('Body does not contain required fields');
-    const album = this.albumRepo.findById(id);
+    const album = await this.albumRepo.findOneBy({ id });
     if (!album) throw new NotFoundException('Album not found');
 
     album.artistId = updateAlbumDto.artistId;
     album.name = updateAlbumDto.name;
     album.year = updateAlbumDto.year;
-    this.albumRepo.update(album);
+    this.albumRepo.save(album);
     return album;
   }
 
@@ -75,12 +77,12 @@ export class AlbumService {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
     await this.favoritesService.nullifyFavsAlbumId(id);
     await this.trackService.nullifyAlbum(id);
-    const album = this.albumRepo.findById(id);
+    const album = await this.albumRepo.findOneBy({ id });
     if (!album) throw new NotFoundException('Album not found');
-    this.albumRepo.delete(id);
+    await this.albumRepo.delete(id);
   }
 
   async nullifyArtistId(id: string) {
-    this.albumRepo.nullifyArtistId(id);
+    await this.albumRepo.update({ artistId: id }, { artistId: null });
   }
 }
