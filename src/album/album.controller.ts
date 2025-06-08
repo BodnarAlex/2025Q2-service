@@ -7,6 +7,7 @@ import {
   Delete,
   HttpCode,
   Put,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { AlbumService } from './album.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
@@ -61,9 +62,9 @@ export class AlbumController {
   @HttpCode(StatusCodes.NO_CONTENT)
   @ApiOperation({ summary: 'Delete album' })
   @ApiParam({ name: 'id', description: 'album`s UUID' })
-  @ApiResponse({ status: 204, description: 'album was daleted' })
+  @ApiResponse({ status: 204, description: 'album was deleted' })
   @HttpCode(StatusCodes.NO_CONTENT)
-  remove(@Param('id') id: string) {
+  remove(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.albumService.remove(id);
   }
 }

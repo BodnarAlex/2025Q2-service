@@ -32,7 +32,7 @@ export class UserService {
       createdAt: time,
       updatedAt: time,
     });
-    this.userRepo.save(newUser);
+    await this.userRepo.save(newUser);
     return instanceToPlain(newUser);
   }
 
@@ -70,7 +70,7 @@ export class UserService {
 
   async remove(id: string) {
     if (!validate(id)) throw new BadRequestException('Id is not uuid');
-    const user = this.userRepo.findOneBy({ id });
+    const user = await this.userRepo.findOneBy({ id });
     if (!user) throw new NotFoundException('User not found');
     await this.userRepo.delete(id);
   }

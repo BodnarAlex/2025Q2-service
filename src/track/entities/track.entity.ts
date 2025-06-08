@@ -2,16 +2,16 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity()
 export class Track {
-  @PrimaryColumn()
+  @PrimaryColumn({ type: 'uuid' })
   id: string;
 
   @Column()
   name: string;
 
-  @Column()
+  @Column({ type: 'uuid', nullable: true })
   artistId: string | null;
 
-  @Column()
+  @Column({ type: 'uuid', nullable: true })
   albumId: string | null;
 
   @Column()

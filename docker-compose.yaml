@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.postgres
-    container_name: postgress
+    container_name: postgres
     restart: always
     ports:
       - "${DB_PORT}:${DB_PORT}"
@@ -24,18 +24,19 @@ services:
     container_name: home_library_service
     restart: always
     ports:
-      - "3000:${PORT}"
+      - "${PORT}:${PORT}"
     depends_on:
       - postgres
     environment:
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
       - PORT=${PORT}
-    volumes:
-      - ./src:/app/src
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     networks:
       - home-net
-    command: npm run start:dev
+    command: npm run start:prod
 
 volumes:
   pg-data:

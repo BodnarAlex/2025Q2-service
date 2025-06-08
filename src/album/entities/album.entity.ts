@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity()
 export class Album {
-  @PrimaryColumn()
+  @PrimaryColumn({ type: 'uuid' })
   id: string;
 
   @Column()
@@ -11,7 +11,7 @@ export class Album {
   @Column()
   year: number;
 
-  @Column()
+  @Column({type: 'uuid', nullable: true})
   artistId: string | null;
 
   constructor(partial: Partial<Album>) {
