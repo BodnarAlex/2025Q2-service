@@ -62,18 +62,19 @@ export class ArtistService {
   }
 
   async remove(id: string) {
+    if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
+
+    const artist = await this.artistRepo.findOneBy({ id });
+    if (!artist) throw new NotFoundException('Artist not found');
+
     const [favorites] = await this.favsRepo.find();
 
     if (favorites && favorites.artists) {
       favorites.artists = favorites.artists.filter(
-        (artistId) => artistId.id !== id,
+        (artistEntity) => artistEntity.id !== id,
       );
       await this.favsRepo.save(favorites);
-
-      if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
-      const artist = await this.artistRepo.findOneBy({ id });
-      if (!artist) throw new NotFoundException('Artist not found');
-      await this.artistRepo.delete(id);
+      await this.artistRepo.remove(artist);
     }
   }
 }

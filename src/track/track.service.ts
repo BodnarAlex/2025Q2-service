@@ -78,7 +78,7 @@ export class TrackService {
 
       const track = await this.trackRepo.findOneBy({ id });
       if (!track) throw new NotFoundException('Track not found');
-      await this.trackRepo.delete(id);
+      await this.trackRepo.remove(track);
     }
   }
 }

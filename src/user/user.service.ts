@@ -70,6 +70,6 @@ export class UserService {
     if (!validate(id)) throw new BadRequestException('Id is not uuid');
     const user = await this.userRepo.findOneBy({ id });
     if (!user) throw new NotFoundException('User not found');
-    await this.userRepo.delete(id);
+    await this.userRepo.remove(user);
   }
 }
