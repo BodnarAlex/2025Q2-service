@@ -1,9 +1,9 @@
 import { Exclude } from 'class-transformer';
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'user' })
 export class User {
-  @PrimaryColumn({ type: 'uuid' })
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ type: 'text' })
@@ -38,5 +38,7 @@ export class User {
 
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);
+
+    if (!this.version) this.version = 1;
   }
 }

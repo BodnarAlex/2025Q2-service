@@ -1,8 +1,17 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Track } from '../../track/entities/track.entity';
+import { Artist } from '../../artist/entities/artist.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity({ name: 'album' })
 export class Album {
-  @PrimaryColumn({ type: 'uuid' })
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ type: 'text' })
@@ -11,8 +20,18 @@ export class Album {
   @Column({ type: 'int' })
   year: number;
 
+  @ManyToOne(() => Artist, (artist) => artist.albums, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'artistId' })
+  artist: Artist;
+
   @Column({ type: 'uuid', nullable: true, default: null })
   artistId: string | null;
+
+  @OneToMany(() => Track, (track) => track.album)
+  tracks: Track[];
 
   constructor(partial: Partial<Album>) {
     Object.assign(this, partial);

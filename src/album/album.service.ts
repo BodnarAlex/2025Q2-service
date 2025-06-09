@@ -1,19 +1,16 @@
 import {
   BadRequestException,
-  forwardRef,
-  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
-import { v4, validate as isUuid } from 'uuid';
+import { validate as isUuid } from 'uuid';
 
 import { Album } from './entities/album.entity';
-import { TrackService } from '../track/track.service';
-import { FavoritesService } from '../favorites/favorites.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Favorite } from '../favorites/entities/favorite.entity';
 
 @Injectable()
 export class AlbumService {
@@ -21,11 +18,8 @@ export class AlbumService {
     @InjectRepository(Album)
     private readonly albumRepo: Repository<Album>,
 
-    @Inject(forwardRef(() => TrackService))
-    private readonly trackService: TrackService,
-
-    @Inject(forwardRef(() => FavoritesService))
-    private readonly favoritesService: FavoritesService,
+    @InjectRepository(Favorite)
+    private readonly favsRepo: Repository<Favorite>,
   ) {}
 
   async create(createAlbumDto: CreateAlbumDto) {
@@ -37,7 +31,6 @@ export class AlbumService {
 
     const artistId = !!createAlbumDto.artistId ? createAlbumDto.artistId : null;
     const newAlbum = new Album({
-      id: v4(),
       name: createAlbumDto.name,
       year: createAlbumDto.year,
       artistId: artistId,
@@ -75,14 +68,16 @@ export class AlbumService {
 
   async remove(id: string) {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
-    await this.favoritesService.nullifyFavsAlbumId(id);
-    await this.trackService.nullifyAlbum(id);
-    const album = await this.albumRepo.findOneBy({ id });
-    if (!album) throw new NotFoundException('Album not found');
-    await this.albumRepo.delete(id);
-  }
+    const [favorites] = await this.favsRepo.find();
 
-  async nullifyArtistId(id: string) {
-    await this.albumRepo.update({ artistId: id }, { artistId: null });
+    if (favorites && favorites.artists) {
+      favorites.artists = favorites.artists.filter(
+        (artistId) => artistId !== id,
+      );
+      await this.favsRepo.save(favorites);
+      const album = await this.albumRepo.findOneBy({ id });
+      if (!album) throw new NotFoundException('Album not found');
+      await this.albumRepo.delete(id);
+    }
   }
 }

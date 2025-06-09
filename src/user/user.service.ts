@@ -7,7 +7,7 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { v4, validate } from 'uuid';
+import { validate } from 'uuid';
 import { instanceToPlain } from 'class-transformer';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -27,8 +27,6 @@ export class UserService {
     const newUser = new User({
       login: createUserDto.login,
       password: createUserDto.password,
-      id: v4(),
-      version: 1,
       createdAt: time,
       updatedAt: time,
     });

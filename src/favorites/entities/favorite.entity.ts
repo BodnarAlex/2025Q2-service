@@ -5,12 +5,12 @@ export class Favorite {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'text', array: true, default: [] })
+  @Column('uuid', { array: true, default: () => 'ARRAY[]::uuid[]' })
   artists: string[];
 
-  @Column({ type: 'text', array: true, default: [] })
+  @Column('uuid', { array: true, default: () => 'ARRAY[]::uuid[]' })
   albums: string[];
 
-  @Column({ type: 'text', array: true, default: [] })
+  @Column('uuid', { array: true, default: () => 'ARRAY[]::uuid[]' })
   tracks: string[];
 }

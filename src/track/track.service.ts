@@ -1,17 +1,15 @@
 import {
   BadRequestException,
-  forwardRef,
-  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
-import { v4, validate as isUuid } from 'uuid';
+import { validate as isUuid } from 'uuid';
 import { Track } from './entities/track.entity';
-import { FavoritesService } from '../favorites/favorites.service';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Favorite } from '../favorites/entities/favorite.entity';
 
 @Injectable()
 export class TrackService {
@@ -19,8 +17,8 @@ export class TrackService {
     @InjectRepository(Track)
     private readonly trackRepo: Repository<Track>,
 
-    @Inject(forwardRef(() => FavoritesService))
-    private readonly favoritesService: FavoritesService,
+    @InjectRepository(Favorite)
+    private readonly favsRepo: Repository<Favorite>,
   ) {}
 
   async create(createTrackDto: CreateTrackDto) {
@@ -34,7 +32,6 @@ export class TrackService {
     const albumId = !!createTrackDto.albumId ? createTrackDto.albumId : null;
 
     const newTrack = new Track({
-      id: v4(),
       name: createTrackDto.name,
       artistId: artistId,
       albumId: albumId,
@@ -71,18 +68,17 @@ export class TrackService {
 
   async remove(id: string) {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
-    await this.favoritesService.nullifyFavsTrackId(id);
+    const [favorites] = await this.favsRepo.find();
 
-    const track = await this.trackRepo.findOneBy({ id });
-    if (!track) throw new NotFoundException('Track not found');
-    await this.trackRepo.delete(id);
-  }
+    if (favorites && favorites.artists) {
+      favorites.artists = favorites.artists.filter(
+        (artistId) => artistId !== id,
+      );
+      await this.favsRepo.save(favorites);
 
-  async nullifyArtistId(id: string) {
-    await this.trackRepo.update({ artistId: id }, { artistId: null });
-  }
-
-  async nullifyAlbum(id: string) {
-    await this.trackRepo.update({ albumId: id }, { albumId: null });
+      const track = await this.trackRepo.findOneBy({ id });
+      if (!track) throw new NotFoundException('Track not found');
+      await this.trackRepo.delete(id);
+    }
   }
 }

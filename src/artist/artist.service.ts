@@ -1,19 +1,15 @@
 import {
   BadRequestException,
-  forwardRef,
-  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { Artist } from './entities/artist.entity';
-import { v4, validate as isUuid } from 'uuid';
-import { AlbumService } from '../album/album.service';
-import { TrackService } from '../track/track.service';
-import { FavoritesService } from '../favorites/favorites.service';
+import { validate as isUuid } from 'uuid';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Favorite } from '../favorites/entities/favorite.entity';
 
 @Injectable()
 export class ArtistService {
@@ -21,14 +17,8 @@ export class ArtistService {
     @InjectRepository(Artist)
     private readonly artistRepo: Repository<Artist>,
 
-    @Inject(forwardRef(() => AlbumService))
-    private readonly albumService: AlbumService,
-
-    @Inject(forwardRef(() => TrackService))
-    private readonly trackService: TrackService,
-
-    @Inject(forwardRef(() => FavoritesService))
-    private readonly favoritesService: FavoritesService,
+    @InjectRepository(Favorite)
+    private readonly favsRepo: Repository<Favorite>,
   ) {}
 
   async create(createArtistDto: CreateArtistDto) {
@@ -39,7 +29,6 @@ export class ArtistService {
       throw new BadRequestException('Body does not contain required fields');
 
     const newArtist = new Artist({
-      id: v4(),
       name: createArtistDto.name,
       grammy: createArtistDto.grammy,
     });
@@ -76,13 +65,18 @@ export class ArtistService {
   }
 
   async remove(id: string) {
-    await this.albumService.nullifyArtistId(id);
-    await this.trackService.nullifyArtistId(id);
-    await this.favoritesService.nullifyFavsArtistId(id);
+    const [favorites] = await this.favsRepo.find();
 
-    if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
-    const artist = await this.artistRepo.findOneBy({ id });
-    if (!artist) throw new NotFoundException('Artist not found');
-    await this.artistRepo.delete(id);
+    if (favorites && favorites.artists) {
+      favorites.artists = favorites.artists.filter(
+        (artistId) => artistId !== id,
+      );
+      await this.favsRepo.save(favorites);
+
+      if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
+      const artist = await this.artistRepo.findOneBy({ id });
+      if (!artist) throw new NotFoundException('Artist not found');
+      await this.artistRepo.delete(id);
+    }
   }
 }
