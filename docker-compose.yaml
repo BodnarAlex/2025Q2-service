@@ -7,10 +7,8 @@ services:
     restart: always
     ports:
       - "${DB_PORT}:${DB_PORT}"
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    env_file:
+    - .env
     volumes:
       - pg-data:/var/lib/postgresql/data
       - pglogs:/var/log/postgresql
@@ -27,16 +25,10 @@ services:
       - "${PORT}:${PORT}"
     depends_on:
       - postgres
-    environment:
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - PORT=${PORT}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    env_file:
+    - .env
     networks:
       - home-net
-    command: npm run start:prod
 
 volumes:
   pg-data:

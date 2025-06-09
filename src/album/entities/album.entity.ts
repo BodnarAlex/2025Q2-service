@@ -1,17 +1,17 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-@Entity()
+@Entity({ name: 'album' })
 export class Album {
   @PrimaryColumn({ type: 'uuid' })
   id: string;
 
-  @Column()
+  @Column({ type: 'text' })
   name: string;
 
-  @Column()
+  @Column({ type: 'int' })
   year: number;
 
-  @Column({type: 'uuid', nullable: true})
+  @Column({ type: 'uuid', nullable: true, default: null })
   artistId: string | null;
 
   constructor(partial: Partial<Album>) {

@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci && npm cache clean --force
+RUN npm install
 
 COPY . .
 
@@ -23,4 +23,4 @@ COPY --from=builder /app/dist ./dist
 
 EXPOSE 4000
 
-CMD ["npm", "run", "start:prod"]
+CMD ["node", "dist/src/main.js"]

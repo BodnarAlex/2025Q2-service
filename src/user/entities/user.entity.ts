@@ -1,19 +1,19 @@
 import { Exclude } from 'class-transformer';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-@Entity()
+@Entity({ name: 'user' })
 export class User {
   @PrimaryColumn({ type: 'uuid' })
   id: string;
 
-  @Column()
+  @Column({ type: 'text' })
   login: string;
 
-  @Column()
+  @Column({ type: 'text' })
   @Exclude()
   password: string;
 
-  @Column()
+  @Column({ type: 'int', default: 1 })
   version: number;
 
   @Column({
