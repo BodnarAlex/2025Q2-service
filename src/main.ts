@@ -12,6 +12,8 @@ import { FavoritesModule } from './favorites/favorites.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+throw new Error('t');
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
