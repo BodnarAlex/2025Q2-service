@@ -28,8 +28,10 @@
     "docker:compose": "docker compose --profile develop up --build --watch",
     "docker:full": "npm run docker:down && npm run docker:compose",
     "docker:scan": "docker scout cves",
-    "migration:generate": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate -d data-source.ts",
-    "migration:run": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d data-source.ts",
+    "pg:up": "docker-compose up -d postgres",
+    "migration:generate": "npm run pg:up && npm run actual-generate",
+    "actual-generate": "cross-env DB_HOST=localhost ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate -d data-source.ts ./src/migrations/AutoMigration",
+    "migration:run": "cross-env DB_HOST=localhost ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d data-source.ts",
     "migration:revert": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d data-source.ts"
   },
   "dependencies": {

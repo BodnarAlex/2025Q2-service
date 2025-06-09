@@ -28,10 +28,7 @@ export class ArtistService {
     )
       throw new BadRequestException('Body does not contain required fields');
 
-    const newArtist = new Artist({
-      name: createArtistDto.name,
-      grammy: createArtistDto.grammy,
-    });
+    const newArtist = this.artistRepo.create(createArtistDto);
     const createdArtist = await this.artistRepo.save(newArtist);
     return createdArtist;
   }
@@ -69,7 +66,7 @@ export class ArtistService {
 
     if (favorites && favorites.artists) {
       favorites.artists = favorites.artists.filter(
-        (artistId) => artistId !== id,
+        (artistId) => artistId.id !== id,
       );
       await this.favsRepo.save(favorites);
 

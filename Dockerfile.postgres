@@ -1,6 +1,4 @@
 FROM postgres:17.5-alpine3.22
 
-COPY ./src/migrations/ /docker-entrypoint-initdb.d/
-
 RUN mkdir -p /var/log/postgresql && \
     chown -R postgres:postgres /var/log/postgresql

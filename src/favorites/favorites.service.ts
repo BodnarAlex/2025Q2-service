@@ -29,15 +29,20 @@ export class FavoritesService {
   ) {}
 
   async getFavorites(): Promise<Favorite> {
-    let favorites = await this.favsRepo.findOne({ where: {} });
+    let favorites = await this.favsRepo.findOne({
+      where: {},
+      relations: ['artists', 'albums', 'tracks'],
+    });
+
     if (!favorites) {
       favorites = this.favsRepo.create({
+        artists: [],
         albums: [],
         tracks: [],
-        artists: [],
       });
       await this.favsRepo.save(favorites);
     }
+
     return favorites;
   }
 
@@ -48,8 +53,8 @@ export class FavoritesService {
     if (!track) throw new UnprocessableEntityException('Track not found');
 
     const favorites = await this.getFavorites();
-    if (!favorites.tracks.includes(id)) {
-      favorites.tracks.push(id);
+    if (!favorites.tracks.find((t) => t.id === id)) {
+      favorites.tracks.push(track);
       await this.favsRepo.save(favorites);
     }
 
@@ -63,8 +68,8 @@ export class FavoritesService {
     if (!album) throw new UnprocessableEntityException('Album not found');
 
     const favorites = await this.getFavorites();
-    if (!favorites.albums.includes(id)) {
-      favorites.albums.push(id);
+    if (!favorites.albums.find((a) => a.id === id)) {
+      favorites.albums.push(album);
       await this.favsRepo.save(favorites);
     }
 
@@ -78,40 +83,40 @@ export class FavoritesService {
     if (!artist) throw new UnprocessableEntityException('Artist not found');
 
     const favorites = await this.getFavorites();
-    if (!favorites.artists.includes(id)) {
-      favorites.artists.push(id);
+    if (!favorites.artists.find((a) => a.id === id)) {
+      favorites.artists.push(artist);
       await this.favsRepo.save(favorites);
     }
     return artist;
   }
 
-  findAll() {
-    return this.favsRepo.findOne({ where: {} });
+  async findAll() {
+    return await this.getFavorites();
   }
 
   async findTracks() {
-    const favorites = await this.favsRepo.findOne({ where: {} });
-    return favorites?.tracks || [];
+    const favorites = await this.getFavorites();
+    return favorites.tracks;
   }
 
   async findAlbums() {
-    const favorites = await this.favsRepo.findOne({ where: {} });
-    return favorites?.albums || [];
+    const favorites = await this.getFavorites();
+    return favorites.albums;
   }
 
   async findArtists() {
-    const favorites = await this.favsRepo.findOne({ where: {} });
-    return favorites?.artists || [];
+    const favorites = await this.getFavorites();
+    return favorites.artists;
   }
 
   async removeTrack(id: string) {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
     const favorites = await this.getFavorites();
 
-    const index = favorites.tracks.indexOf(id);
+    const index = favorites.tracks.findIndex((a) => a.id === id);
     if (index === -1) throw new NotFoundException('Track is not favorite');
 
-    favorites.tracks.slice(index, 1);
+    favorites.tracks.splice(index, 1);
     await this.favsRepo.save(favorites);
   }
 
@@ -120,10 +125,10 @@ export class FavoritesService {
 
     const favorites = await this.getFavorites();
 
-    const index = favorites.albums.indexOf(id);
+    const index = favorites.albums.findIndex((a) => a.id === id);
     if (index === -1) throw new NotFoundException('Album is not favorite');
 
-    favorites.albums.slice(index, 1);
+    favorites.albums.splice(index, 1);
     await this.favsRepo.save(favorites);
   }
 
@@ -132,10 +137,10 @@ export class FavoritesService {
 
     const favorites = await this.getFavorites();
 
-    const index = favorites.artists.indexOf(id);
+    const index = favorites.artists.findIndex((a) => a.id === id);
     if (index === -1) throw new NotFoundException('Artist is not favorite');
 
-    favorites.artists.slice(index, 1);
+    favorites.artists.splice(index, 1);
     await this.favsRepo.save(favorites);
   }
 }

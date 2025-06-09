@@ -70,10 +70,8 @@ export class AlbumService {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
     const [favorites] = await this.favsRepo.find();
 
-    if (favorites && favorites.artists) {
-      favorites.artists = favorites.artists.filter(
-        (artistId) => artistId !== id,
-      );
+    if (favorites && favorites.albums) {
+      favorites.albums = favorites.albums.filter((album) => album.id !== id);
       await this.favsRepo.save(favorites);
       const album = await this.albumRepo.findOneBy({ id });
       if (!album) throw new NotFoundException('Album not found');

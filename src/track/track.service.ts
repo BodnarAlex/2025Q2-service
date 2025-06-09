@@ -70,9 +70,9 @@ export class TrackService {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
     const [favorites] = await this.favsRepo.find();
 
-    if (favorites && favorites.artists) {
-      favorites.artists = favorites.artists.filter(
-        (artistId) => artistId !== id,
+    if (favorites && favorites.tracks) {
+      favorites.tracks = favorites.tracks.filter(
+        (trackId) => trackId.id !== id,
       );
       await this.favsRepo.save(favorites);
 
