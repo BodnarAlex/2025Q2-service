@@ -9,9 +9,9 @@ import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { Artist } from './entities/artist.entity';
 import { v4, validate as isUuid } from 'uuid';
-import { AlbumService } from 'src/album/album.service';
-import { TrackService } from 'src/track/track.service';
-import { FavoritesService } from 'src/favorites/favorites.service';
+import { AlbumService } from '../album/album.service';
+import { TrackService } from '../track/track.service';
+import { FavoritesService } from '../favorites/favorites.service';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 

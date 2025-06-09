@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile.postgres
     container_name: postgres
-    restart: always
+    restart: on-failure
     ports:
       - "${DB_PORT}:${DB_PORT}"
     env_file:
@@ -20,13 +20,15 @@ services:
       context: .
       dockerfile: Dockerfile.app
     container_name: home_library_service
-    restart: always
+    restart: on-failure
     ports:
       - "${PORT}:${PORT}"
     depends_on:
       - postgres
     env_file:
     - .env
+    volumes:
+      - ./src:/app/src
     networks:
       - home-net
 

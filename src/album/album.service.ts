@@ -10,8 +10,8 @@ import { UpdateAlbumDto } from './dto/update-album.dto';
 import { v4, validate as isUuid } from 'uuid';
 
 import { Album } from './entities/album.entity';
-import { TrackService } from 'src/track/track.service';
-import { FavoritesService } from 'src/favorites/favorites.service';
+import { TrackService } from '../track/track.service';
+import { FavoritesService } from '../favorites/favorites.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 

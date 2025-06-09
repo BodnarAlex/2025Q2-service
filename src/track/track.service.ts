@@ -9,7 +9,7 @@ import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { v4, validate as isUuid } from 'uuid';
 import { Track } from './entities/track.entity';
-import { FavoritesService } from 'src/favorites/favorites.service';
+import { FavoritesService } from '../favorites/favorites.service';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
