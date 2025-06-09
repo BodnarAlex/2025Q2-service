@@ -10,6 +10,8 @@ import { validate as isUuid } from 'uuid';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Favorite } from '../favorites/entities/favorite.entity';
+import { Album } from '../album/entities/album.entity';
+import { Track } from '../track/entities/track.entity';
 
 @Injectable()
 export class ArtistService {
@@ -19,6 +21,12 @@ export class ArtistService {
 
     @InjectRepository(Favorite)
     private readonly favsRepo: Repository<Favorite>,
+
+    @InjectRepository(Track)
+    private readonly trackRepo: Repository<Track>,
+
+    @InjectRepository(Album)
+    private readonly albumRepo: Repository<Album>,
   ) {}
 
   async create(createArtistDto: CreateArtistDto) {
@@ -74,7 +82,21 @@ export class ArtistService {
         (artistEntity) => artistEntity.id !== id,
       );
       await this.favsRepo.save(favorites);
-      await this.artistRepo.remove(artist);
     }
+    // await this.trackRepo
+    //   .createQueryBuilder()
+    //   .update(Track)
+    //   .set({ artistId: null })
+    //   .where('artistId = :id', { id })
+    //   .execute();
+
+    // await this.albumRepo
+    //   .createQueryBuilder()
+    //   .update(Album)
+    //   .set({ artistId: null })
+    //   .where('artistId = :id', { id })
+    //   .execute();
+
+    await this.artistRepo.remove(artist);
   }
 }

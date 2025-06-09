@@ -41,7 +41,7 @@ export class UserService {
 
   async findOne(id: string) {
     if (!validate(id)) throw new BadRequestException('Id is not uuid');
-    const user = await this.userRepo.findOneBy({ id });
+    const user = await this.userRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException('User does not exist');
     return instanceToPlain(user);
   }
@@ -52,7 +52,7 @@ export class UserService {
     if (!updateUserDto.newPassword || !updateUserDto.oldPassword)
       throw new BadRequestException('Body does not contain required fields');
 
-    const user = await this.userRepo.findOneBy({ id });
+    const user = await this.userRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
 
     if (updateUserDto.oldPassword !== user.password)
@@ -68,7 +68,7 @@ export class UserService {
 
   async remove(id: string) {
     if (!validate(id)) throw new BadRequestException('Id is not uuid');
-    const user = await this.userRepo.findOneBy({ id });
+    const user = await this.userRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
     await this.userRepo.remove(user);
   }

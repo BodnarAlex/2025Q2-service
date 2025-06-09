@@ -1,14 +1,14 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class AutoMigration1749515603908 implements MigrationInterface {
-    name = 'AutoMigration1749515603908'
+export class AutoMigration1749526341165 implements MigrationInterface {
+    name = 'AutoMigration1749526341165'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`CREATE TABLE "user" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "login" text NOT NULL, "password" text NOT NULL, "version" integer NOT NULL DEFAULT '1', "createdAt" bigint NOT NULL, "updatedAt" bigint NOT NULL, CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "artist" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "name" text NOT NULL, "grammy" boolean NOT NULL DEFAULT false, CONSTRAINT "PK_55b76e71568b5db4d01d3e394ed" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "track" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "name" text NOT NULL, "artistId" uuid, "albumId" uuid, "duration" integer NOT NULL DEFAULT '0', CONSTRAINT "PK_0631b9bcf521f8fab3a15f2c37e" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "album" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "name" text NOT NULL, "year" integer NOT NULL, "artistId" uuid, CONSTRAINT "PK_58e0b4b8a31bb897e6959fe3206" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "favorite" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), CONSTRAINT "PK_495675cec4fb09666704e4f610f" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "user" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "login" text NOT NULL, "password" text NOT NULL, "version" integer NOT NULL DEFAULT '1', "createdAt" bigint NOT NULL, "updatedAt" bigint NOT NULL, CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "favorites_artists" ("favoriteId" uuid NOT NULL, "artistId" uuid NOT NULL, CONSTRAINT "PK_8c55e34c32eabc5811bd11b9cbb" PRIMARY KEY ("favoriteId", "artistId"))`);
         await queryRunner.query(`CREATE INDEX "IDX_5fe2b45220925011fc8b283bb5" ON "favorites_artists" ("favoriteId") `);
         await queryRunner.query(`CREATE INDEX "IDX_78426d3d98baf6756b0b6223b3" ON "favorites_artists" ("artistId") `);
@@ -48,11 +48,11 @@ export class AutoMigration1749515603908 implements MigrationInterface {
         await queryRunner.query(`DROP INDEX "public"."IDX_78426d3d98baf6756b0b6223b3"`);
         await queryRunner.query(`DROP INDEX "public"."IDX_5fe2b45220925011fc8b283bb5"`);
         await queryRunner.query(`DROP TABLE "favorites_artists"`);
+        await queryRunner.query(`DROP TABLE "user"`);
         await queryRunner.query(`DROP TABLE "favorite"`);
         await queryRunner.query(`DROP TABLE "album"`);
         await queryRunner.query(`DROP TABLE "track"`);
         await queryRunner.query(`DROP TABLE "artist"`);
-        await queryRunner.query(`DROP TABLE "user"`);
     }
 
 }
