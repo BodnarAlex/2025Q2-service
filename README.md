@@ -157,3 +157,5 @@ Other commands can be called from a script:
 - Apply all migrations to the database - `migration:prep`
 - Generate a migration and apply all migrations at once (full cycle) - `migration:full`
 - Roll back the last migration - `npm run migration:revert`
+
+### Logging and error handling
