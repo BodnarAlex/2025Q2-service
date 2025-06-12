@@ -8,9 +8,14 @@ import { TrackModule } from './track/track.module';
 import { ArtistModule } from './artist/artist.module';
 import { AlbumModule } from './album/album.module';
 import { FavoritesModule } from './favorites/favorites.module';
+import { LoggerService } from './logger/logger.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
+
+  app.useLogger(new LoggerService());
 
   app.useGlobalPipes(
     new ValidationPipe({
