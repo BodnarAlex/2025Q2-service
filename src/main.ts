@@ -15,8 +15,6 @@ async function bootstrap() {
     bufferLogs: true,
   });
 
-  app.useLogger(new LoggerService());
-
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -27,6 +25,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   const configService = app.get(ConfigService);
   const PORT = configService.get('PORT') || 4000;
+  app.useLogger(new LoggerService(configService));
 
   const config = new DocumentBuilder()
     .setTitle('Home Library Service')
