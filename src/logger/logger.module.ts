@@ -5,7 +5,12 @@ import { ConfigModule } from '@nestjs/config';
 @Global()
 @Module({
   imports: [ConfigModule],
-  controllers: [LoggerService],
+  providers: [
+    {
+      provide: LoggerService,
+      useClass: LoggerService,
+    },
+  ],
   exports: [LoggerService],
 })
 export class LoggerModule {}

@@ -25,7 +25,9 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   const configService = app.get(ConfigService);
   const PORT = configService.get('PORT') || 4000;
-  app.useLogger(new LoggerService(configService));
+
+  const loggerService = app.get(LoggerService);
+  app.useLogger(loggerService);
 
   const config = new DocumentBuilder()
     .setTitle('Home Library Service')
