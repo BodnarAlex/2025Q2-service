@@ -12,6 +12,7 @@ import { LoggerModule } from './logger/logger.module';
 import { APP_FILTER } from '@nestjs/core';
 import { MyExceptionFilter } from './filters/filter';
 import { LoggingMiddleware } from './logger/logger.middleware';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { LoggingMiddleware } from './logger/logger.middleware';
     AlbumModule,
     FavoritesModule,
     LoggerModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_FILTER, useClass: MyExceptionFilter }],
