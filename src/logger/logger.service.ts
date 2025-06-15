@@ -4,6 +4,7 @@ import {
   appendFileSync,
   existsSync,
   mkdirSync,
+  renameSync,
   statSync,
   writeFileSync,
 } from 'node:fs';
@@ -68,6 +69,7 @@ export class LoggingService extends ConsoleLogger {
       this.writeMessageToFile(
         PATH_TO_ERROR_FILE,
         `[FATAL] ${message} ${context || ''}`,
+        'errors',
       );
     }
   }
@@ -78,6 +80,7 @@ export class LoggingService extends ConsoleLogger {
       this.writeMessageToFile(
         PATH_TO_ERROR_FILE,
         `[ERROR] ${message} ${stack || ''} ${context || ''}`,
+        'errors',
       );
     }
   }
@@ -119,8 +122,12 @@ export class LoggingService extends ConsoleLogger {
     }
   }
 
-  writeMessageToFile(pathToFile = PATH_TO_LOG_FILE, message = 'From logger') {
-    this.checkRotate(pathToFile);
+  writeMessageToFile(
+    pathToFile = PATH_TO_LOG_FILE,
+    message = 'From logger',
+    flag = 'logs',
+  ) {
+    this.checkRotate(pathToFile, flag);
 
     const dir = path.dirname(pathToFile);
     if (!existsSync(dir)) {
@@ -134,11 +141,23 @@ export class LoggingService extends ConsoleLogger {
     appendFileSync(pathToFile, message + '\n');
   }
 
-  checkRotate(pathToFile: string) {
+  checkRotate(pathToFile: string, flag: string) {
     if (!existsSync(pathToFile)) return;
     const size = statSync(pathToFile).size / 1024;
     if (size >= this.max_size) {
+      const timestamp = this.getBeautifulTimestamp();
+      const pathToRotate = path.join(
+        __dirname,
+        `../../logs/${flag}-${timestamp}.txt`,
+      );
+
+      renameSync(pathToFile, pathToRotate);
       writeFileSync(pathToFile, '');
     }
+  }
+
+  getBeautifulTimestamp() {
+    const now = new Date();
+    return `${now.getDate()}-${+now.getMonth() + 1}-${now.getFullYear()} ${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}`;
   }
 }
