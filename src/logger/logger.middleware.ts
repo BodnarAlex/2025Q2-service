@@ -14,7 +14,7 @@ export class LoggingMiddleware implements NestMiddleware {
       const ms = Date.now() - start;
       const msg = `[HTTP] ${method} | Url: ${originalUrl} | Query: ${JSON.stringify(query)} | Body: ${JSON.stringify(body)} | Status: ${JSON.stringify(res.statusCode)} | ${JSON.stringify(ms)}ms`;
 
-      this.loggingService.log(msg);
+      this.loggingService.log(msg, 'HTTP');
     });
 
     next();
