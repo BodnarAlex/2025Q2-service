@@ -159,3 +159,18 @@ Other commands can be called from a script:
 - Roll back the last migration - `npm run migration:revert`
 
 ### Logging and error handling
+
+For check uncaughtException and unhandledRejection.
+
+Use the lines below in main.ts file after listening on the port, on line 62.
+
+```
+  setTimeout(() => {
+    Promise.reject(new Error('Test unhandled rejection'));
+  }, 3000);
+
+  setTimeout(() => {
+    console.log('Throwing uncaught error...');
+    throw new Error('Test uncaught exception');
+  }, 3000);
+```

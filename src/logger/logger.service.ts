@@ -64,7 +64,7 @@ export class LoggingService extends ConsoleLogger {
   }
 
   fatal(message: any, context?: string) {
-    if (this.log_level === 0) {
+    if (this.log_level >= 0) {
       super.fatal(message, context);
       this.writeMessageToFile(
         PATH_TO_ERROR_FILE,
