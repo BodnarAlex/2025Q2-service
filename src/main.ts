@@ -8,7 +8,7 @@ import { TrackModule } from './track/track.module';
 import { ArtistModule } from './artist/artist.module';
 import { AlbumModule } from './album/album.module';
 import { FavoritesModule } from './favorites/favorites.module';
-import { LoggerService } from './logger/logger.service';
+import { LoggingService } from './logger/logger.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -26,7 +26,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const PORT = configService.get('PORT') || 4000;
 
-  const loggerService = app.get(LoggerService);
+  const loggerService = app.get(LoggingService);
   app.useLogger(loggerService);
 
   const config = new DocumentBuilder()

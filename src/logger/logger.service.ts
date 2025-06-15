@@ -15,7 +15,7 @@ const PATH_TO_LOG_FILE = path.join(__dirname, '../../logs/logFile.txt');
 const PATH_TO_ERROR_FILE = path.join(__dirname, '../../logs/errorFile.txt');
 
 @Injectable()
-export class LoggerService extends ConsoleLogger {
+export class LoggingService extends ConsoleLogger {
   private log_level: number;
   private max_size: number;
 
