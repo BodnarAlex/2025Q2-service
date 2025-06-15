@@ -11,15 +11,12 @@ import { validate } from 'uuid';
 import { instanceToPlain } from 'class-transformer';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LoggerService } from '../logger/logger.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
-
-    private readonly loggerService: LoggerService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -39,7 +36,6 @@ export class UserService {
 
   async findAll() {
     const users = await this.userRepo.find();
-    this.loggerService.error('yyyyyyL');
     return users.map((user: User) => instanceToPlain(user));
   }
 

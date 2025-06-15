@@ -67,7 +67,7 @@ export class LoggerService extends ConsoleLogger {
       super.fatal(message, context);
       this.writeMessageToFile(
         PATH_TO_ERROR_FILE,
-        `[FATAL] ${message} ${context}`,
+        `[FATAL] ${message} ${context || ''}`,
       );
     }
   }
@@ -77,7 +77,7 @@ export class LoggerService extends ConsoleLogger {
       super.error(message, stack, context);
       this.writeMessageToFile(
         PATH_TO_ERROR_FILE,
-        `[ERROR] ${message} ${stack} ${context}`,
+        `[ERROR] ${message} ${stack || ''} ${context || ''}`,
       );
     }
   }
@@ -92,7 +92,10 @@ export class LoggerService extends ConsoleLogger {
   log(message: any, context?: string) {
     if (this.log_level >= 3) {
       super.log(message, context);
-      this.writeMessageToFile(PATH_TO_LOG_FILE, `[LOG] ${message} ${context}`);
+      this.writeMessageToFile(
+        PATH_TO_LOG_FILE,
+        `[LOG] ${message} ${context || ''}`,
+      );
     }
   }
 
@@ -101,7 +104,7 @@ export class LoggerService extends ConsoleLogger {
       super.debug(message, context);
       this.writeMessageToFile(
         PATH_TO_LOG_FILE,
-        `[DEBUG] ${message} ${context}`,
+        `[DEBUG] ${message} ${context || ''}`,
       );
     }
   }
@@ -111,7 +114,7 @@ export class LoggerService extends ConsoleLogger {
       super.verbose(message, context);
       this.writeMessageToFile(
         PATH_TO_LOG_FILE,
-        `[VERBOSE] ${message} ${context}`,
+        `[VERBOSE] ${message} ${context || ''}`,
       );
     }
   }
