@@ -25,7 +25,8 @@ npm install
 cp .env.example .env
 ```
 
-2. Don't forget to clear your entire workspace from containers, images, variables. Anything can affect the process.
+2. Don't forget to clear your entire workspace from containers, images, variables.
+Open the DockerDesktop application, if it was open and it was used to check other jobs, then it should be cleaned.Anything can affect the process.
 
 You can do it in the Docker Desktop or enter the command
 ```
@@ -193,6 +194,16 @@ Log levels from 0 to 5: `fatal - error - warn - log - debug - verbose`.
 If you select fatal, only fatal level errors will be visible. If you select the log level, fatal, error, warning and log level messages will be displayed.
 
 You can write either `LOG`, `log` or the `number 3`. All three implementations will display the log level and higher.
+
+#### IMPORTANT
+
+To check `LOG_LEVEL`, you should close the container and restart it with the following commands.
+
+```
+1. npm run docker:down
+2. npm run migration:full
+3. npm run docker:compose
+```
 ____________
 
 For check uncaughtException and unhandledRejection.
