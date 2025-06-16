@@ -31,15 +31,12 @@ export class UserService {
       createUserDto.password,
       Number(this.configService.get('CRYPT_SALT')),
     );
-    console.log('cryptoPassword:', cryptoPassword);
-    console.log('user.password:', createUserDto.password);
     const newUser = new User({
       login: createUserDto.login,
       password: cryptoPassword,
       createdAt: time,
       updatedAt: time,
     });
-    console.log('newUser:', newUser);
 
     await this.userRepo.save(newUser);
     return instanceToPlain(newUser);

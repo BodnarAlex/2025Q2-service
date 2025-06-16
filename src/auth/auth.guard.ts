@@ -20,7 +20,6 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const { url } = context.switchToHttp().getRequest();
-
     if (url.startsWith('/doc')) return true;
 
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
@@ -30,17 +29,21 @@ export class AuthGuard implements CanActivate {
     if (isPublic) return true;
 
     const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
-    if (!token) {
-      throw new UnauthorizedException();
+    const authHeader = request.headers['Authorization'];
+
+    if (!authHeader?.startsWith('Bearer ')) {
+      throw new UnauthorizedException('Invalid Authorization header');
     }
+
+    const token = authHeader.split(' ')[1];
+
     try {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: this.configService.get('JWT_SECRET_KEY'),
       });
       request['user'] = payload;
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Invalid or expired access token');
     }
     return true;
   }
