@@ -14,6 +14,7 @@ import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { StatusCodes } from 'http-status-codes';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
@@ -22,6 +23,7 @@ import {
 } from '@nestjs/swagger';
 
 @ApiTags('artist')
+@ApiBearerAuth()
 @Controller('artist')
 export class ArtistController {
   constructor(private readonly artistService: ArtistService) {}

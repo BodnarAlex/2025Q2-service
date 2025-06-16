@@ -9,6 +9,7 @@ import { ArtistModule } from './artist/artist.module';
 import { AlbumModule } from './album/album.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { LoggingService } from './logger/logger.service';
+import { AuthModule } from './auth/auth.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -33,6 +34,7 @@ async function bootstrap() {
     .setTitle('Home Library Service')
     .setDescription('The music library service')
     .setVersion('1.0')
+    .addBearerAuth()
     .addTag('music')
     .build();
 
@@ -43,6 +45,7 @@ async function bootstrap() {
       ArtistModule,
       AlbumModule,
       FavoritesModule,
+      AuthModule,
     ],
   });
 

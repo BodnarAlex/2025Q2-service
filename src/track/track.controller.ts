@@ -14,6 +14,7 @@ import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { StatusCodes } from 'http-status-codes';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
@@ -22,6 +23,7 @@ import {
 } from '@nestjs/swagger';
 
 @ApiTags('track')
+@ApiBearerAuth()
 @Controller('track')
 export class TrackController {
   constructor(private readonly trackService: TrackService) {}
