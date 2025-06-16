@@ -12,7 +12,7 @@ import { instanceToPlain } from 'class-transformer';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -29,14 +29,18 @@ export class UserService {
     const time = Date.now();
     const cryptoPassword = await bcrypt.hash(
       createUserDto.password,
-      this.configService.get('CRYPT_SALT'),
+      Number(this.configService.get('CRYPT_SALT')),
     );
+    console.log('cryptoPassword:', cryptoPassword);
+    console.log('user.password:', createUserDto.password);
     const newUser = new User({
       login: createUserDto.login,
       password: cryptoPassword,
       createdAt: time,
       updatedAt: time,
     });
+    console.log('newUser:', newUser);
+
     await this.userRepo.save(newUser);
     return instanceToPlain(newUser);
   }
@@ -66,11 +70,12 @@ export class UserService {
       updateUserDto.oldPassword,
       user.password,
     );
-    if (isMatchPassword) throw new ForbiddenException('Incorrect old password');
+    if (!isMatchPassword)
+      throw new ForbiddenException('Incorrect old password');
 
     user.password = await bcrypt.hash(
       updateUserDto.newPassword,
-      this.configService.get('CRYPT_SALT'),
+      +this.configService.get('CRYPT_SALT'),
     );
     user.version++;
     user.updatedAt = Date.now();
@@ -84,5 +89,9 @@ export class UserService {
     const user = await this.userRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
     await this.userRepo.remove(user);
+  }
+
+  async findByLogin(login: string) {
+    return await this.userRepo.findOne({ where: { login } });
   }
 }
