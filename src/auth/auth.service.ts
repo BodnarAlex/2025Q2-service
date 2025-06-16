@@ -10,7 +10,6 @@ import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
-import { RefreshDto } from './dto/refresh.dto';
 
 @Injectable()
 export class AuthService {
@@ -63,18 +62,16 @@ export class AuthService {
     });
   }
 
-  async refresh(refreshDto: RefreshDto) {
-    if (!refreshDto.refreshToken) {
+  async refresh(refreshToken: string) {
+    if (!refreshToken) {
       throw new UnauthorizedException('No refresh token provided');
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(
-        refreshDto.refreshToken,
-        {
-          secret: this.configService.get('JWT_SECRET_REFRESH_KEY'),
-        },
-      );
+      const payload = await this.jwtService.verifyAsync(refreshToken, {
+        secret: this.configService.get('JWT_SECRET_REFRESH_KEY'),
+        clockTolerance: 0,
+      });
       return this.signTokens(payload.userId, payload.login);
     } catch (err) {
       throw new ForbiddenException('Invalid or expired refresh token');

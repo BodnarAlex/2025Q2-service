@@ -3,8 +3,8 @@ import { AuthService } from './auth.service';
 import { Public } from './auth.decorator';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
-import { RefreshDto } from './dto/refresh.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { RefreshDto } from './dto/refresh.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -12,7 +12,7 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Public()
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.CREATED)
   @Post('signup')
   @ApiOperation({ summary: 'Signup user' })
   @ApiResponse({ status: 201, description: 'Signup was success' })
@@ -26,18 +26,18 @@ export class AuthController {
   @Post('login')
   @ApiOperation({ summary: 'Login user' })
   @ApiResponse({ status: 200, description: 'Login was success' })
-  @ApiBody({ type: SignupDto })
+  @ApiBody({ type: LoginDto })
   signIn(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
 
   @Public()
   @HttpCode(HttpStatus.OK)
-  @Post('refresh')
   @ApiOperation({ summary: 'Refresh' })
   @ApiResponse({ status: 200, description: 'Refresh tokens was success' })
-  @ApiBody({ type: SignupDto })
-  refresh(@Body() refreshDto: RefreshDto) {
-    return this.authService.refresh(refreshDto);
+  @ApiBody({ type: RefreshDto })
+  @Post('refresh')
+  refresh(@Body() body: { refreshToken: string }) {
+    return this.authService.refresh(body.refreshToken);
   }
 }
