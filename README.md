@@ -20,7 +20,10 @@ npm install
 
 ## Running application
 
-1. Just in case, I returned `.env` from `.gitignore`, so now you don't have to create it. This is bad practice, but at the same time it protects you from an inattentive reviewer.
+1. Create .env
+```
+cp .env.example .env
+```
 
 2. Don't forget to clear your entire workspace from containers, images, variables. Anything can affect the process.
 
@@ -66,7 +69,18 @@ Work in another terminal tab.
 
 After application running open new terminal and enter:
 
-To run all tests for Home Library Service: Part 1
+To run all tests for Home Library Service: Part 3
+
+```
+npm run test:auth
+
+npm run test:refresh
+```
+
+____
+#### Old test
+
+To run all tests for Home Library Service: Part 1 & 2
 
 ```
 npm run test
@@ -113,7 +127,7 @@ You can look at the default swagger of this app on this path
 If you changed the port in ENV, then insert your port for correct operation
 `http://localhost:PORT/doc`
 
-In this way, you can directly use entities and actions to test the work.
+This way you can directly use entities and actions to check the operation. Also, the swagger includes access by authorization and the final path `/auth`
 
 ### Docker
 
@@ -160,6 +174,27 @@ Other commands can be called from a script:
 
 ### Logging and error handling
 
+Logs are written to the logs/ path and are divided into 2 types of files: for logs and error logs.
+
+When the size of the rotated file is higher than that shown in env., the file name is changed to the file type + time stamp when this file was canned.
+For example: `errors-16-6-2025 6-16-45.txt` or `logs-16-6-2025 20-2-21.txt`.
+
+All requests are written to log files. Requests with errors are also written to the error log.
+
+In env there are values ​​that can be controlled for rotation and logging level
+
+```
+LOG_LEVEL=log
+MAX_SIZE=5
+```
+
+Log levels from 0 to 5: `fatal - error - warn - log - debug - verbose`.
+
+If you select fatal, only fatal level errors will be visible. If you select the log level, fatal, error, warning and log level messages will be displayed.
+
+You can write either `LOG`, `log` or the `number 3`. All three implementations will display the log level and higher.
+____________
+
 For check uncaughtException and unhandledRejection.
 
 Use the lines below in main.ts file after listening on the port, on line 62.
@@ -173,4 +208,32 @@ Use the lines below in main.ts file after listening on the port, on line 62.
     console.log('Throwing uncaught error...');
     throw new Error('Test uncaught exception');
   }, 3000);
+```
+
+### Authentication and Authorization
+
+It is easy to check this point on swagger.
+
+Enter a new user in signUp. For login, select its parameters.
+In response, 2 tokens will come.
+For example
+
+```
+
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzY2M4MmM3ZC1iMGYzLTQ3OWEtOTI2Yi05MmY4NzM0YjRjZDMiLCJsb2dpbiI6InVzZXIxMTEiLCJpYXQiOjE3NTAxMDMyNzYsImV4cCI6MTc1MDEwNjg3Nn0.5HluLSUHUdZY-v8vTOO8ceITLiSUHYBlwa50m-pvPXU",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzY2M4MmM3ZC1iMGYzLTQ3OWEtOTI2Yi05MmY4NzM0YjRjZDMiLCJsb2dpbiI6InVzZXIxMTEiLCJpYXQiOjE3NTAxMDMyNzYsImV4cCI6MTc1MDE4OTY3Nn0.GrcMm5zcYZy61ct40v8GIAnPSt5DYUw7QGXJFaCZM6I"
+}
+
+```
+
+If you enter the access token at the top of swagger, in the button called `Authorize`, then the rest of the requests closed by a shortcut will become available and will no longer return `401`.
+
+To create and manage two tokens, you can use these values ​​in .env
+```
+CRYPT_SALT=10
+JWT_SECRET_KEY=secret123123
+JWT_SECRET_REFRESH_KEY=secret123123
+TOKEN_EXPIRE_TIME=1h
+TOKEN_REFRESH_EXPIRE_TIME=24h
 ```
