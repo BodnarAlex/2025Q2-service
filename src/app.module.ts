@@ -13,6 +13,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { MyExceptionFilter } from './filters/filter';
 import { LoggingMiddleware } from './logger/logger.middleware';
 import { AuthModule } from './auth/auth.module';
+import { SecurityModule } from './security/security.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { AuthModule } from './auth/auth.module';
     FavoritesModule,
     LoggerModule,
     AuthModule,
+    SecurityModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_FILTER, useClass: MyExceptionFilter }],
