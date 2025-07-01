@@ -58,11 +58,11 @@ export class TrackService {
     if (!track) throw new NotFoundException('Track not found');
 
     track.artistId = updateTrackDto.artistId;
-    track.albumId = updateTrackDto.albumId;
-    track.name = updateTrackDto.name;
+    track.albumId = updateTrackDto.albumId ?? null;
+    track.name = updateTrackDto.name ?? null;
     track.duration = updateTrackDto.duration;
 
-    this.trackRepo.save(track);
+    await this.trackRepo.save(track);
     return track;
   }
 
@@ -75,10 +75,10 @@ export class TrackService {
         (trackId) => trackId.id !== id,
       );
       await this.favsRepo.save(favorites);
-
-      const track = await this.trackRepo.findOneBy({ id });
-      if (!track) throw new NotFoundException('Track not found');
-      await this.trackRepo.remove(track);
     }
+
+    const track = await this.trackRepo.findOneBy({ id });
+    if (!track) throw new NotFoundException('Track not found');
+    await this.trackRepo.remove(track);
   }
 }

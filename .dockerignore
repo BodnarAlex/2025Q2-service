@@ -11,3 +11,4 @@ docker-compose.yaml
 doc
 test
 *.spec.ts
+logs

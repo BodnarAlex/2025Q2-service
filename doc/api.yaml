@@ -128,20 +128,23 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateUserDto'
+              $ref: "#/components/schemas/CreateUserDto"
       responses:
-        '201':
+        "201":
           description: User was Created
-      tags: &ref_0
+      tags: &a1
         - user
+      security: &a2
+        - bearer: []
     get:
       operationId: UserController_findAll
       summary: Get all users
       parameters: []
       responses:
-        '200':
+        "200":
           description: List of users
-      tags: *ref_0
+      tags: *a1
+      security: *a2
   /user/{id}:
     get:
       operationId: UserController_findOne
@@ -154,9 +157,10 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: User was fined
-      tags: *ref_0
+      tags: *a1
+      security: *a2
     put:
       operationId: UserController_update
       summary: Update user
@@ -172,11 +176,12 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateUserDto'
+              $ref: "#/components/schemas/UpdateUserDto"
       responses:
-        '200':
+        "200":
           description: User was updated
-      tags: *ref_0
+      tags: *a1
+      security: *a2
     delete:
       operationId: UserController_remove
       summary: Delete user
@@ -188,9 +193,10 @@ paths:
           schema:
             type: string
       responses:
-        '204':
-          description: User was daleted
-      tags: *ref_0
+        "204":
+          description: User was deleted
+      tags: *a1
+      security: *a2
   /track:
     post:
       operationId: TrackController_create
@@ -201,20 +207,23 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateTrackDto'
+              $ref: "#/components/schemas/CreateTrackDto"
       responses:
-        '201':
+        "201":
           description: Track was Created
-      tags: &ref_1
+      tags: &a3
         - track
+      security: &a4
+        - bearer: []
     get:
       operationId: TrackController_findAll
       summary: Get all tracks
       parameters: []
       responses:
-        '200':
+        "200":
           description: List of tracks
-      tags: *ref_1
+      tags: *a3
+      security: *a4
   /track/{id}:
     get:
       operationId: TrackController_findOne
@@ -227,9 +236,10 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Track was fined
-      tags: *ref_1
+      tags: *a3
+      security: *a4
     put:
       operationId: TrackController_update
       summary: Update track
@@ -245,11 +255,12 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateTrackDto'
+              $ref: "#/components/schemas/UpdateTrackDto"
       responses:
-        '200':
+        "200":
           description: Track was updated
-      tags: *ref_1
+      tags: *a3
+      security: *a4
     delete:
       operationId: TrackController_remove
       summary: Delete track
@@ -261,206 +272,10 @@ paths:
           schema:
             type: string
       responses:
-        '204':
-          description: Track was daleted
-      tags: *ref_1
-  /favs:
-    get:
-      operationId: FavoritesController_findAll
-      summary: Get all favorites
-      parameters: []
-      responses:
-        '200':
-          description: List of favorites
-      tags: &ref_2
-        - favorites
-  /favs/track:
-    get:
-      operationId: FavoritesController_findTracks
-      summary: Find all favorites tracks
-      parameters: []
-      responses:
-        '200':
-          description: favorites tracks was founded
-      tags: *ref_2
-  /favs/track/{id}:
-    post:
-      operationId: FavoritesController_createTrack
-      summary: Find a favorite track
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: favorite track`s UUID
-          schema:
-            type: string
-      responses:
-        '201':
-          description: favorite track was founded
-      tags: *ref_2
-    delete:
-      operationId: FavoritesController_removeTrack
-      summary: Delete favorite track
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: favorite track`s UUID
-          schema:
-            type: string
-      responses:
-        '204':
-          description: favorite track was daleted
-      tags: *ref_2
-  /favs/album:
-    get:
-      operationId: FavoritesController_findAlbums
-      summary: Find all favorites albums
-      parameters: []
-      responses:
-        '200':
-          description: favorites albums was founded
-      tags: *ref_2
-  /favs/album/{id}:
-    post:
-      operationId: FavoritesController_createAlbum
-      summary: Find a favorite album
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: favorite album`s UUID
-          schema:
-            type: string
-      responses:
-        '201':
-          description: favorite album was founded
-      tags: *ref_2
-    delete:
-      operationId: FavoritesController_removeAlbum
-      summary: Delete favorite album
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: favorite album`s UUID
-          schema:
-            type: string
-      responses:
-        '204':
-          description: favorite album was daleted
-      tags: *ref_2
-  /favs/artist:
-    get:
-      operationId: FavoritesController_findArtists
-      summary: Find all favorites artist
-      parameters: []
-      responses:
-        '200':
-          description: favorites artist was founded
-      tags: *ref_2
-  /favs/artist/{id}:
-    post:
-      operationId: FavoritesController_create
-      summary: Find a favorite artist
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: favorite artist`s UUID
-          schema:
-            type: string
-      responses:
-        '201':
-          description: favorite artist was founded
-      tags: *ref_2
-    delete:
-      operationId: FavoritesController_removeArtist
-      summary: Delete favorite artist
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: favorite artist`s UUID
-          schema:
-            type: string
-      responses:
-        '204':
-          description: favorite artist was daleted
-      tags: *ref_2
-  /album:
-    post:
-      operationId: AlbumController_create
-      summary: Create album
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateAlbumDto'
-      responses:
-        '201':
-          description: album was Created
-      tags: &ref_3
-        - album
-    get:
-      operationId: AlbumController_findAll
-      summary: Get all albums
-      parameters: []
-      responses:
-        '200':
-          description: List of albums
-      tags: *ref_3
-  /album/{id}:
-    get:
-      operationId: AlbumController_findOne
-      summary: Find an album
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: album`s UUID
-          schema:
-            type: string
-      responses:
-        '200':
-          description: album was founded
-      tags: *ref_3
-    put:
-      operationId: AlbumController_update
-      summary: Update album
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: album`s UUID
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateAlbumDto'
-      responses:
-        '200':
-          description: album was updated
-      tags: *ref_3
-    delete:
-      operationId: AlbumController_remove
-      summary: Delete album
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: album`s UUID
-          schema:
-            type: string
-      responses:
-        '204':
-          description: album was daleted
-      tags: *ref_3
+        "204":
+          description: Track was deleted
+      tags: *a3
+      security: *a4
   /artist:
     post:
       operationId: ArtistController_create
@@ -471,20 +286,23 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateArtistDto'
+              $ref: "#/components/schemas/CreateArtistDto"
       responses:
-        '201':
+        "201":
           description: Artist was Created
-      tags: &ref_4
+      tags: &a5
         - artist
+      security: &a6
+        - bearer: []
     get:
       operationId: ArtistController_findAll
       summary: Get all artists
       parameters: []
       responses:
-        '200':
+        "200":
           description: List of artists
-      tags: *ref_4
+      tags: *a5
+      security: *a6
   /artist/{id}:
     get:
       operationId: ArtistController_findOne
@@ -497,9 +315,10 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: artist was fined
-      tags: *ref_4
+      tags: *a5
+      security: *a6
     put:
       operationId: ArtistController_update
       summary: Update artist
@@ -515,11 +334,12 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateArtistDto'
+              $ref: "#/components/schemas/UpdateArtistDto"
       responses:
-        '200':
+        "200":
           description: artist was updated
-      tags: *ref_4
+      tags: *a5
+      security: *a6
     delete:
       operationId: ArtistController_remove
       summary: Delete artist
@@ -531,19 +351,285 @@ paths:
           schema:
             type: string
       responses:
-        '204':
-          description: artist was daleted
-      tags: *ref_4
+        "204":
+          description: artist was deleted
+      tags: *a5
+      security: *a6
+  /album:
+    post:
+      operationId: AlbumController_create
+      summary: Create album
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAlbumDto"
+      responses:
+        "201":
+          description: album was Created
+      tags: &a7
+        - album
+      security: &a8
+        - bearer: []
+    get:
+      operationId: AlbumController_findAll
+      summary: Get all albums
+      parameters: []
+      responses:
+        "200":
+          description: List of albums
+      tags: *a7
+      security: *a8
+  /album/{id}:
+    get:
+      operationId: AlbumController_findOne
+      summary: Find an album
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: album`s UUID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: album was founded
+      tags: *a7
+      security: *a8
+    put:
+      operationId: AlbumController_update
+      summary: Update album
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: album`s UUID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAlbumDto"
+      responses:
+        "200":
+          description: album was updated
+      tags: *a7
+      security: *a8
+    delete:
+      operationId: AlbumController_remove
+      summary: Delete album
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: album`s UUID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: album was deleted
+      tags: *a7
+      security: *a8
+  /favs:
+    get:
+      operationId: FavoritesController_findAll
+      summary: Get all favorites
+      parameters: []
+      responses:
+        "200":
+          description: List of favorites
+      tags: &a9
+        - favorites
+      security: &a10
+        - bearer: []
+  /favs/track:
+    get:
+      operationId: FavoritesController_findTracks
+      summary: Find all favorites tracks
+      parameters: []
+      responses:
+        "200":
+          description: favorites tracks was founded
+      tags: *a9
+      security: *a10
+  /favs/track/{id}:
+    post:
+      operationId: FavoritesController_createTrack
+      summary: Find a favorite track
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: favorite track`s UUID
+          schema:
+            type: string
+      responses:
+        "201":
+          description: favorite track was founded
+      tags: *a9
+      security: *a10
+    delete:
+      operationId: FavoritesController_removeTrack
+      summary: Delete favorite track
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: favorite track`s UUID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: favorite track was daleted
+      tags: *a9
+      security: *a10
+  /favs/album:
+    get:
+      operationId: FavoritesController_findAlbums
+      summary: Find all favorites albums
+      parameters: []
+      responses:
+        "200":
+          description: favorites albums was founded
+      tags: *a9
+      security: *a10
+  /favs/album/{id}:
+    post:
+      operationId: FavoritesController_createAlbum
+      summary: Find a favorite album
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: favorite album`s UUID
+          schema:
+            type: string
+      responses:
+        "201":
+          description: favorite album was founded
+      tags: *a9
+      security: *a10
+    delete:
+      operationId: FavoritesController_removeAlbum
+      summary: Delete favorite album
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: favorite album`s UUID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: favorite album was daleted
+      tags: *a9
+      security: *a10
+  /favs/artist:
+    get:
+      operationId: FavoritesController_findArtists
+      summary: Find all favorites artist
+      parameters: []
+      responses:
+        "200":
+          description: favorites artist was founded
+      tags: *a9
+      security: *a10
+  /favs/artist/{id}:
+    post:
+      operationId: FavoritesController_create
+      summary: Find a favorite artist
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: favorite artist`s UUID
+          schema:
+            type: string
+      responses:
+        "201":
+          description: favorite artist was founded
+      tags: *a9
+      security: *a10
+    delete:
+      operationId: FavoritesController_removeArtist
+      summary: Delete favorite artist
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: favorite artist`s UUID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: favorite artist was daleted
+      tags: *a9
+      security: *a10
+  /auth/signup:
+    post:
+      operationId: AuthController_signup
+      summary: Signup user
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupDto"
+      responses:
+        "201":
+          description: Signup was success
+      tags: &a11
+        - auth
+  /auth/login:
+    post:
+      operationId: AuthController_signIn
+      summary: Login user
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupDto"
+      responses:
+        "200":
+          description: Login was success
+      tags: *a11
+  /auth/refresh:
+    post:
+      operationId: AuthController_refresh
+      summary: Refresh
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupDto"
+      responses:
+        "200":
+          description: Refresh tokens was success
+      tags: *a11
 info:
   title: Home Library Service
-  description: The music gallery
-  version: '1.0'
+  description: The music library service
+  version: "1.0"
   contact: {}
 tags:
   - name: music
-    description: ''
+    description: ""
 servers: []
 components:
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
   schemas:
     CreateUserDto:
       type: object
@@ -620,6 +706,33 @@ components:
           example: 10
       required:
         - name
+    CreateArtistDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Artist`s name
+          example: Louna
+        grammy:
+          type: boolean
+          description: Artist has the grammy
+          example: "true"
+      required:
+        - name
+        - grammy
+    UpdateArtistDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Artist`s name
+          example: Louna
+        grammy:
+          type: boolean
+          description: Artist has the grammy
+          example: "true"
+      required:
+        - name
     CreateAlbumDto:
       type: object
       properties:
@@ -630,7 +743,7 @@ components:
         year:
           type: number
           description: Album`s year created
-          example: '2015'
+          example: "2015"
         artistId:
           type: string
           description: Album`s artist id
@@ -650,7 +763,7 @@ components:
         year:
           type: number
           description: Album`s year created
-          example: '2015'
+          example: "2015"
         artistId:
           type: string
           description: Album`s artist id
@@ -658,30 +771,17 @@ components:
           nullable: true
       required:
         - name
-    CreateArtistDto:
+    SignupDto:
       type: object
       properties:
-        name:
+        login:
           type: string
-          description: Artist`s name
-          example: Louna
-        grammy:
-          type: boolean
-          description: Artist has the grammy
-          example: 'true'
-      required:
-        - name
-        - grammy
-    UpdateArtistDto:
-      type: object
-      properties:
-        name:
+          description: User for signup
+          example: user111
+        password:
           type: string
-          description: Artist`s name
-          example: Louna
-        grammy:
-          type: boolean
-          description: Artist has the grammy
-          example: 'true'
+          description: Password for signup
+          example: password111
       required:
-        - name
+        - login
+        - password

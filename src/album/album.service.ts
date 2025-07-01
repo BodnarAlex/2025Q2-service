@@ -62,7 +62,7 @@ export class AlbumService {
     album.artistId = updateAlbumDto.artistId;
     album.name = updateAlbumDto.name;
     album.year = updateAlbumDto.year;
-    this.albumRepo.save(album);
+    await this.albumRepo.save(album);
     return album;
   }
 
@@ -73,9 +73,10 @@ export class AlbumService {
     if (favorites && favorites.albums) {
       favorites.albums = favorites.albums.filter((album) => album.id !== id);
       await this.favsRepo.save(favorites);
-      const album = await this.albumRepo.findOneBy({ id });
-      if (!album) throw new NotFoundException('Album not found');
-      await this.albumRepo.delete(id);
     }
+
+    const album = await this.albumRepo.findOneBy({ id });
+    if (!album) throw new NotFoundException('Album not found');
+    await this.albumRepo.delete(id);
   }
 }

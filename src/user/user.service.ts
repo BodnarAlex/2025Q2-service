@@ -11,12 +11,15 @@ import { validate } from 'uuid';
 import { instanceToPlain } from 'class-transformer';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ConfigService } from '@nestjs/config';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    private readonly configService: ConfigService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -24,12 +27,17 @@ export class UserService {
       throw new BadRequestException('Body does not contain required fields');
 
     const time = Date.now();
+    const cryptoPassword = await bcrypt.hash(
+      createUserDto.password,
+      Number(this.configService.get('CRYPT_SALT')),
+    );
     const newUser = new User({
       login: createUserDto.login,
-      password: createUserDto.password,
+      password: cryptoPassword,
       createdAt: time,
       updatedAt: time,
     });
+
     await this.userRepo.save(newUser);
     return instanceToPlain(newUser);
   }
@@ -55,10 +63,17 @@ export class UserService {
     const user = await this.userRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
 
-    if (updateUserDto.oldPassword !== user.password)
+    const isMatchPassword = await bcrypt.compare(
+      updateUserDto.oldPassword,
+      user.password,
+    );
+    if (!isMatchPassword)
       throw new ForbiddenException('Incorrect old password');
 
-    user.password = updateUserDto.newPassword;
+    user.password = await bcrypt.hash(
+      updateUserDto.newPassword,
+      +this.configService.get('CRYPT_SALT'),
+    );
     user.version++;
     user.updatedAt = Date.now();
 
@@ -71,5 +86,9 @@ export class UserService {
     const user = await this.userRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
     await this.userRepo.remove(user);
+  }
+
+  async findByLogin(login: string) {
+    return await this.userRepo.findOne({ where: { login } });
   }
 }
