@@ -7,12 +7,14 @@ import {
   Delete,
   HttpCode,
   Put,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { StatusCodes } from 'http-status-codes';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
@@ -21,6 +23,7 @@ import {
 } from '@nestjs/swagger';
 
 @ApiTags('user')
+@ApiBearerAuth()
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -61,8 +64,8 @@ export class UserController {
   @HttpCode(StatusCodes.NO_CONTENT)
   @ApiOperation({ summary: 'Delete user' })
   @ApiParam({ name: 'id', description: 'User`s UUID' })
-  @ApiResponse({ status: 204, description: 'User was daleted' })
-  remove(@Param('id') id: string) {
+  @ApiResponse({ status: 204, description: 'User was deleted' })
+  remove(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.userService.remove(id);
   }
 }

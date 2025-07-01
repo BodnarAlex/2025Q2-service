@@ -7,12 +7,14 @@ import {
   Delete,
   HttpCode,
   Put,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { ArtistService } from './artist.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { StatusCodes } from 'http-status-codes';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
@@ -21,6 +23,7 @@ import {
 } from '@nestjs/swagger';
 
 @ApiTags('artist')
+@ApiBearerAuth()
 @Controller('artist')
 export class ArtistController {
   constructor(private readonly artistService: ArtistService) {}
@@ -61,9 +64,9 @@ export class ArtistController {
   @HttpCode(StatusCodes.NO_CONTENT)
   @ApiOperation({ summary: 'Delete artist' })
   @ApiParam({ name: 'id', description: 'artist`s UUID' })
-  @ApiResponse({ status: 204, description: 'artist was daleted' })
+  @ApiResponse({ status: 204, description: 'artist was deleted' })
   @HttpCode(StatusCodes.NO_CONTENT)
-  remove(@Param('id') id: string) {
+  remove(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.artistService.remove(id);
   }
 }

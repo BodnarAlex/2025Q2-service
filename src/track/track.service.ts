@@ -1,26 +1,27 @@
 import {
   BadRequestException,
-  forwardRef,
-  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
-import { v4, validate as isUuid } from 'uuid';
+import { validate as isUuid } from 'uuid';
 import { Track } from './entities/track.entity';
-import { FavoritesService } from 'src/favorites/favorites.service';
-import { TrackRepository } from './track.repository';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Favorite } from '../favorites/entities/favorite.entity';
 
 @Injectable()
 export class TrackService {
   constructor(
-    @Inject(forwardRef(() => FavoritesService))
-    private readonly favoritesService: FavoritesService,
-    private readonly trackRepo: TrackRepository,
+    @InjectRepository(Track)
+    private readonly trackRepo: Repository<Track>,
+
+    @InjectRepository(Favorite)
+    private readonly favsRepo: Repository<Favorite>,
   ) {}
 
-  create(createTrackDto: CreateTrackDto) {
+  async create(createTrackDto: CreateTrackDto) {
     if (
       typeof createTrackDto.name !== 'string' ||
       typeof createTrackDto.duration !== 'number'
@@ -31,54 +32,53 @@ export class TrackService {
     const albumId = !!createTrackDto.albumId ? createTrackDto.albumId : null;
 
     const newTrack = new Track({
-      id: v4(),
       name: createTrackDto.name,
       artistId: artistId,
       albumId: albumId,
       duration: createTrackDto.duration,
     });
-    return this.trackRepo.create(newTrack);
+    const createTrack = await this.trackRepo.save(newTrack);
+    return createTrack;
   }
 
-  findAll() {
-    return this.trackRepo.findAll();
+  async findAll() {
+    return this.trackRepo.find();
   }
 
-  findOne(id: string) {
+  async findOne(id: string) {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
-    const track = this.trackRepo.findById(id);
+    const track = await this.trackRepo.findOneBy({ id });
     if (!track) throw new NotFoundException('Artist does not exist');
     return track;
   }
 
-  update(id: string, updateTrackDto: UpdateTrackDto) {
+  async update(id: string, updateTrackDto: UpdateTrackDto) {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
-    const track = this.trackRepo.findById(id);
+    const track = await this.trackRepo.findOneBy({ id });
     if (!track) throw new NotFoundException('Track not found');
 
     track.artistId = updateTrackDto.artistId;
-    track.albumId = updateTrackDto.albumId;
-    track.name = updateTrackDto.name;
+    track.albumId = updateTrackDto.albumId ?? null;
+    track.name = updateTrackDto.name ?? null;
     track.duration = updateTrackDto.duration;
 
-    this.trackRepo.update(track);
+    await this.trackRepo.save(track);
     return track;
   }
 
   async remove(id: string) {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
-    await this.favoritesService.nullifyFavsTrackId(id);
+    const [favorites] = await this.favsRepo.find();
 
-    const track = this.trackRepo.findById(id);
+    if (favorites && favorites.tracks) {
+      favorites.tracks = favorites.tracks.filter(
+        (trackId) => trackId.id !== id,
+      );
+      await this.favsRepo.save(favorites);
+    }
+
+    const track = await this.trackRepo.findOneBy({ id });
     if (!track) throw new NotFoundException('Track not found');
-    this.trackRepo.delete(id);
-  }
-
-  async nullifyArtistId(id: string) {
-    this.trackRepo.nullifyArtistId(id);
-  }
-
-  async nullifyAlbum(id: string) {
-    this.trackRepo.nullifyAlbumId(id);
+    await this.trackRepo.remove(track);
   }
 }

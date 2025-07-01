@@ -1,0 +1,43 @@
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
+    container_name: postgres
+    restart: on-failure
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    env_file:
+    - .env
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+      - pglogs:/var/log/postgresql
+    networks:
+      - home-net
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: home_library_service
+    restart: on-failure
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      - postgres
+    env_file:
+    - .env
+    volumes:
+      - ./src:/app/src
+      - /app/node_modules
+      - ./logs:/app/logs
+    networks:
+      - home-net
+
+volumes:
+  pg-data:
+  pglogs:
+
+networks:
+  home-net:
+    driver: bridge

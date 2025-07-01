@@ -1,86 +1,102 @@
 import {
   BadRequestException,
-  forwardRef,
-  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { Artist } from './entities/artist.entity';
-import { v4, validate as isUuid } from 'uuid';
-import { AlbumService } from 'src/album/album.service';
-import { TrackService } from 'src/track/track.service';
-import { FavoritesService } from 'src/favorites/favorites.service';
-import { ArtistRepository } from './artist.repository';
+import { validate as isUuid } from 'uuid';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Favorite } from '../favorites/entities/favorite.entity';
+import { Album } from '../album/entities/album.entity';
+import { Track } from '../track/entities/track.entity';
 
 @Injectable()
 export class ArtistService {
   constructor(
-    @Inject(forwardRef(() => AlbumService))
-    private readonly albumService: AlbumService,
+    @InjectRepository(Artist)
+    private readonly artistRepo: Repository<Artist>,
 
-    @Inject(forwardRef(() => TrackService))
-    private readonly trackService: TrackService,
+    @InjectRepository(Favorite)
+    private readonly favsRepo: Repository<Favorite>,
 
-    @Inject(forwardRef(() => FavoritesService))
-    private readonly favoritesService: FavoritesService,
+    @InjectRepository(Track)
+    private readonly trackRepo: Repository<Track>,
 
-    private readonly artistRepo: ArtistRepository,
+    @InjectRepository(Album)
+    private readonly albumRepo: Repository<Album>,
   ) {}
 
-  create(createArtistDto: CreateArtistDto) {
+  async create(createArtistDto: CreateArtistDto) {
     if (
       typeof createArtistDto.name !== 'string' ||
       typeof createArtistDto.grammy !== 'boolean'
     )
       throw new BadRequestException('Body does not contain required fields');
 
-    const newArtist = new Artist({
-      id: v4(),
-      name: createArtistDto.name,
-      grammy: createArtistDto.grammy,
-    });
-    this.artistRepo.create(newArtist);
-    return newArtist;
+    const newArtist = this.artistRepo.create(createArtistDto);
+    const createdArtist = await this.artistRepo.save(newArtist);
+    return createdArtist;
   }
 
-  findAll() {
-    return this.artistRepo.findAll();
+  async findAll() {
+    return await this.artistRepo.find();
   }
 
-  findOne(id: string) {
+  async findOne(id: string) {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
-    const artist = this.artistRepo.findById(id);
+    const artist = await this.artistRepo.findOneBy({ id });
     if (!artist) throw new NotFoundException('Artist does not exist');
     return artist;
   }
 
-  update(id: string, updateArtistDto: UpdateArtistDto) {
+  async update(id: string, updateArtistDto: UpdateArtistDto) {
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
     if (
       typeof updateArtistDto.name !== 'string' ||
       typeof updateArtistDto.grammy !== 'boolean'
     )
       throw new BadRequestException('Body does not contain required fields');
-    const artist = this.artistRepo.findById(id);
+    const artist = await this.artistRepo.findOneBy({ id });
     if (!artist) throw new NotFoundException('Artist not found');
 
     artist.grammy = updateArtistDto.grammy;
     artist.name = updateArtistDto.name;
 
-    this.artistRepo.update(artist);
-    return artist;
+    const updateArtist = await this.artistRepo.save(artist);
+    return updateArtist;
   }
 
   async remove(id: string) {
-    await this.albumService.nullifyArtistId(id);
-    await this.trackService.nullifyArtistId(id);
-    await this.favoritesService.nullifyFavsArtistId(id);
-
     if (!isUuid(id)) throw new BadRequestException('Id is not uuid');
-    const artist = this.artistRepo.findById(id);
+
+    const artist = await this.artistRepo.findOneBy({ id });
     if (!artist) throw new NotFoundException('Artist not found');
-    this.artistRepo.delete(id);
+
+    const [favorites] = await this.favsRepo.find();
+
+    if (favorites && favorites.artists) {
+      favorites.artists = favorites.artists.filter(
+        (artistEntity) => artistEntity.id !== id,
+      );
+      await this.favsRepo.save(favorites);
+    }
+    // await this.trackRepo
+    //   .createQueryBuilder()
+    //   .update(Track)
+    //   .set({ artistId: null })
+    //   .where('artistId = :id', { id })
+    //   .execute();
+
+    // await this.albumRepo
+    //   .createQueryBuilder()
+    //   .update(Album)
+    //   .set({ artistId: null })
+    //   .where('artistId = :id', { id })
+    //   .execute();
+
+    await this.artistRepo.remove(artist);
   }
 }
